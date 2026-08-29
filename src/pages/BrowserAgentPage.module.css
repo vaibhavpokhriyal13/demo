@@ -87,10 +87,11 @@
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 0 1.5rem;
+  padding: 0.75rem 1.5rem;
   font-weight: 600;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
