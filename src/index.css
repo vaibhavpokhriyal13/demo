@@ -39,7 +39,8 @@ body {
 
 .dashboard-container {
   display: flex;
-  height: 100vh;
+  height: 100vh; /* Fallback */
+  height: 100dvh;
   width: 100vw;
   overflow: hidden;
 }
@@ -67,6 +68,7 @@ body {
 @media (max-width: 768px) {
   .page-content {
     padding: 1rem;
+    padding-bottom: 3rem;
   }
 }
 
