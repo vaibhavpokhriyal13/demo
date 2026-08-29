@@ -59,9 +59,13 @@ export default function Sidebar({ activeTab, setActiveTab }) {
         </nav>
         
         <div className={styles.footer}>
+          <div className={styles.sihBadge}>
+            <span className={styles.sihTag}>PS SIH26171</span>
+            <span className={styles.sihSub}>On-Device Perception</span>
+          </div>
           <div className={styles.statusBox}>
             <div className={styles.statusDot}></div>
-            <span>System Online</span>
+            <span>WASM / ONNX Online</span>
           </div>
         </div>
       </aside>

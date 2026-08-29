@@ -1,110 +1,239 @@
 import React, { useState } from 'react';
+import {
+  ShieldCheck,
+  Database,
+  Lock,
+  Eye,
+  Trash2
+} from 'lucide-react';
 import styles from './SettingsPage.module.css';
 
 export default function SettingsPage() {
+  const [privacyMode, setPrivacyMode] = useState('balanced');
   const [settings, setSettings] = useState({
     localPii: true,
     autoRedact: true,
     faceDetect: true,
     passwordProtect: true,
-    sanitizedOnly: true,
-    localProcessing: true
+    aadhaarMask: true,
+    phoneMask: true,
+    domFirstAdaptive: true,
+    onnxWebGPU: true,
+    autoVerifyMediumRisk: true,
+    confidenceThreshold: 90,
+    taskMemorySafeOnly: true,
+    selfCorrectionRetries: true,
   });
+
+  const [memoryCleared, setMemoryCleared] = useState(false);
 
   const toggleSetting = (key) => {
     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const handleClearMemory = () => {
+    setMemoryCleared(true);
+    setTimeout(() => setMemoryCleared(false), 3000);
+  };
+
   return (
     <div className={styles.container}>
-      <h2 className={styles.pageTitle}>Settings</h2>
-      <p className={styles.subtitle}>Configure local privacy policies and agent behavior.</p>
+      {/* Header */}
+      <div className={styles.header}>
+        <div>
+          <h2 className={styles.pageTitle}>System & Privacy Policy Settings</h2>
+          <p className={styles.subtitle}>
+            Configure on-device Privacy Firewall policies, Adaptive Perception thresholds, and Risk Engine parameters.
+          </p>
+        </div>
+      </div>
 
       <div className={`card ${styles.settingsCard}`}>
-        <h3 className={styles.sectionTitle}>Privacy Protection</h3>
-        
-        <div className={styles.settingRow}>
-          <div className={styles.settingInfo}>
-            <h4>Local PII Detection</h4>
-            <p>Use local vision model to detect Aadhaar, Phone, PAN, etc.</p>
+        {/* Section 1: Privacy Firewall & Modes */}
+        <div className={styles.sectionBlock}>
+          <div className={styles.sectionHeader}>
+            <Lock size={18} color="var(--accent-primary)" />
+            <div>
+              <h3 className={styles.sectionTitle}>Privacy Firewall Policy Mode</h3>
+              <p className={styles.sectionSub}>Enforces local token sanitization before LLM reasoning.</p>
+            </div>
           </div>
-          <button 
-            className={`${styles.toggle} ${settings.localPii ? styles.on : ''}`}
-            onClick={() => toggleSetting('localPii')}
-          >
-            <div className={styles.toggleKnob}></div>
-          </button>
-        </div>
 
-        <div className={styles.settingRow}>
-          <div className={styles.settingInfo}>
-            <h4>Automatic Redaction</h4>
-            <p>Automatically black out detected PII before server transmission.</p>
-          </div>
-          <button 
-            className={`${styles.toggle} ${settings.autoRedact ? styles.on : ''}`}
-            onClick={() => toggleSetting('autoRedact')}
-          >
-            <div className={styles.toggleKnob}></div>
-          </button>
-        </div>
+          <div className={styles.modeSelectorGrid}>
+            <div 
+              className={`${styles.modeOption} ${privacyMode === 'strict' ? styles.modeActive : ''}`}
+              onClick={() => setPrivacyMode('strict')}
+            >
+              <div className={styles.modeRadio}>
+                {privacyMode === 'strict' && <div className={styles.radioDot} />}
+              </div>
+              <div>
+                <strong>Strict Privacy Mode</strong>
+                <p>Blocks all PII, metadata, and ambiguous tokens. Highest privacy guarantees (95%+ budget saved).</p>
+              </div>
+            </div>
 
-        <div className={styles.settingRow}>
-          <div className={styles.settingInfo}>
-            <h4>Face Detection</h4>
-            <p>Detect and blur faces in visual context.</p>
-          </div>
-          <button 
-            className={`${styles.toggle} ${settings.faceDetect ? styles.on : ''}`}
-            onClick={() => toggleSetting('faceDetect')}
-          >
-            <div className={styles.toggleKnob}></div>
-          </button>
-        </div>
+            <div 
+              className={`${styles.modeOption} ${privacyMode === 'balanced' ? styles.modeActive : ''}`}
+              onClick={() => setPrivacyMode('balanced')}
+            >
+              <div className={styles.modeRadio}>
+                {privacyMode === 'balanced' && <div className={styles.radioDot} />}
+              </div>
+              <div>
+                <strong>Balanced Privacy Mode (Recommended)</strong>
+                <p>Redacts PII locally (Aadhaar, Phone, Email) while preserving interactive layout roles & DOM structure.</p>
+              </div>
+            </div>
 
-        <div className={styles.settingRow}>
-          <div className={styles.settingInfo}>
-            <h4>Password Protection</h4>
-            <p>Identify and redact password fields and visible secrets.</p>
+            <div 
+              className={`${styles.modeOption} ${privacyMode === 'automation' ? styles.modeActive : ''}`}
+              onClick={() => setPrivacyMode('automation')}
+            >
+              <div className={styles.modeRadio}>
+                {privacyMode === 'automation' && <div className={styles.radioDot} />}
+              </div>
+              <div>
+                <strong>Automation Optimized Mode</strong>
+                <p>High throughput sanitized context for rapid sequential task executions.</p>
+              </div>
+            </div>
           </div>
-          <button 
-            className={`${styles.toggle} ${settings.passwordProtect ? styles.on : ''}`}
-            onClick={() => toggleSetting('passwordProtect')}
-          >
-            <div className={styles.toggleKnob}></div>
-          </button>
         </div>
 
         <hr className={styles.divider} />
-        
-        <h3 className={styles.sectionTitle}>Network & Processing</h3>
 
-        <div className={styles.settingRow}>
-          <div className={styles.settingInfo}>
-            <h4>Send Only Sanitized Context</h4>
-            <p>Block unredacted images from leaving the device entirely.</p>
+        {/* Section 2: Sensitive Element Detector Settings */}
+        <div className={styles.sectionBlock}>
+          <div className={styles.sectionHeader}>
+            <ShieldCheck size={18} color="var(--accent-warning)" />
+            <div>
+              <h3 className={styles.sectionTitle}>Sensitive Element Detector Rules</h3>
+              <p className={styles.sectionSub}>Granular entity scanners operating locally via Regex + ONNX Runtime.</p>
+            </div>
           </div>
-          <button 
-            className={`${styles.toggle} ${settings.sanitizedOnly ? styles.on : ''}`}
-            onClick={() => toggleSetting('sanitizedOnly')}
-          >
-            <div className={styles.toggleKnob}></div>
-          </button>
+
+          <div className={styles.togglesList}>
+            <div className={styles.settingRow}>
+              <div className={styles.settingInfo}>
+                <h4>Aadhaar & National ID Masking</h4>
+                <p>Identify and redact 12-digit Aadhaar / National Identity numbers.</p>
+              </div>
+              <button 
+                className={`${styles.toggle} ${settings.aadhaarMask ? styles.on : ''}`}
+                onClick={() => toggleSetting('aadhaarMask')}
+              >
+                <div className={styles.toggleKnob}></div>
+              </button>
+            </div>
+
+            <div className={styles.settingRow}>
+              <div className={styles.settingInfo}>
+                <h4>Phone & Contact Number Masking</h4>
+                <p>Detect and redact Indian (+91) and international telephone numbers.</p>
+              </div>
+              <button 
+                className={`${styles.toggle} ${settings.phoneMask ? styles.on : ''}`}
+                onClick={() => toggleSetting('phoneMask')}
+              >
+                <div className={styles.toggleKnob}></div>
+              </button>
+            </div>
+
+            <div className={styles.settingRow}>
+              <div className={styles.settingInfo}>
+                <h4>Password & Secret Field Interception</h4>
+                <p>Strictly block password inputs, OTP fields, and secret tokens from viewport context.</p>
+              </div>
+              <button 
+                className={`${styles.toggle} ${settings.passwordProtect ? styles.on : ''}`}
+                onClick={() => toggleSetting('passwordProtect')}
+              >
+                <div className={styles.toggleKnob}></div>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className={styles.settingRow}>
-          <div className={styles.settingInfo}>
-            <h4>Local Processing Priority</h4>
-            <p>Attempt to solve tasks locally before querying the Server LLM.</p>
+        <hr className={styles.divider} />
+
+        {/* Section 3: Adaptive Perception & Engine Controls */}
+        <div className={styles.sectionBlock}>
+          <div className={styles.sectionHeader}>
+            <Eye size={18} color="var(--accent-primary)" />
+            <div>
+              <h3 className={styles.sectionTitle}>Adaptive Perception & Risk Engine</h3>
+              <p className={styles.sectionSub}>Inference strategy and pre-execution safety validation.</p>
+            </div>
           </div>
-          <button 
-            className={`${styles.toggle} ${settings.localProcessing ? styles.on : ''}`}
-            onClick={() => toggleSetting('localProcessing')}
-          >
-            <div className={styles.toggleKnob}></div>
-          </button>
+
+          <div className={styles.togglesList}>
+            <div className={styles.settingRow}>
+              <div className={styles.settingInfo}>
+                <h4>DOM Fast-Path First</h4>
+                <p>Use lightweight DOM / accessibility tree first; invoke Vision ONNX only when visually ambiguous.</p>
+              </div>
+              <button 
+                className={`${styles.toggle} ${settings.domFirstAdaptive ? styles.on : ''}`}
+                onClick={() => toggleSetting('domFirstAdaptive')}
+              >
+                <div className={styles.toggleKnob}></div>
+              </button>
+            </div>
+
+            <div className={styles.settingRow}>
+              <div className={styles.settingInfo}>
+                <h4>Auto-Verify Medium-Risk Actions</h4>
+                <p>Perform safety pre-checks for file downloads and selection mutations.</p>
+              </div>
+              <button 
+                className={`${styles.toggle} ${settings.autoVerifyMediumRisk ? styles.on : ''}`}
+                onClick={() => toggleSetting('autoVerifyMediumRisk')}
+              >
+                <div className={styles.toggleKnob}></div>
+              </button>
+            </div>
+
+            <div className={styles.settingRow}>
+              <div className={styles.settingInfo}>
+                <h4>Self-Correction Loop</h4>
+                <p>Automatically re-perceive and retry with safe alternative selector on dynamic UI shift.</p>
+              </div>
+              <button 
+                className={`${styles.toggle} ${settings.selfCorrectionRetries ? styles.on : ''}`}
+                onClick={() => toggleSetting('selfCorrectionRetries')}
+              >
+                <div className={styles.toggleKnob}></div>
+              </button>
+            </div>
+          </div>
         </div>
 
+        <hr className={styles.divider} />
+
+        {/* Section 4: Task Memory Settings */}
+        <div className={styles.sectionBlock}>
+          <div className={styles.sectionHeader}>
+            <Database size={18} color="var(--accent-cyan)" />
+            <div>
+              <h3 className={styles.sectionTitle}>Task Memory & Safe Preference Cache</h3>
+              <p className={styles.sectionSub}>Persistent storage for non-sensitive workflows with zero credentials policy.</p>
+            </div>
+          </div>
+
+          <div className={styles.memorySettingRow}>
+            <div>
+              <strong>Stored Safe Patterns: 3 non-sensitive entries</strong>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                Zero passwords, OTPs, or raw screenshots are ever saved.
+              </p>
+            </div>
+            <button className={styles.clearMemoryBtn} onClick={handleClearMemory}>
+              <Trash2 size={15} />
+              {memoryCleared ? 'Task Memory Cleared!' : 'Clear Safe Task Memory'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
