@@ -30,7 +30,7 @@ function App() {
       <main className="main-content">
         <div className="page-content">
           {renderContent()}
-          <footer style={{ marginTop: '3rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', paddingBottom: '1rem' }}>
+          <footer style={{ marginTop: 'auto', paddingTop: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', paddingBottom: '1rem' }}>
             PrivAgent Prototype &copy; SIH 2026
           </footer>
         </div>
