@@ -5,13 +5,18 @@ import {
   ChevronUp,
   Zap,
   Eye,
-  Search
+  Search,
+  Copy,
+  Check,
+  RefreshCw
 } from 'lucide-react';
 import styles from './LogsPage.module.css';
 
 export default function LogsPage() {
   const [expandedId, setExpandedId] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState('ALL');
+  const [copiedId, setCopiedId] = useState(null);
 
   const auditLogs = [
     {
@@ -19,6 +24,7 @@ export default function LogsPage() {
       timestamp: '22:10:14',
       task: 'Find the project report and download it',
       status: 'Completed (Verified)',
+      filterType: 'DOM',
       perception: 'DOM First (12ms)',
       risk: { tier: 'MEDIUM', score: 0.42 },
       confidence: 96,
@@ -38,6 +44,7 @@ export default function LogsPage() {
       timestamp: '21:55:40',
       task: 'Locate submit button on custom canvas map',
       status: 'Completed (Vision Fallback)',
+      filterType: 'VISION',
       perception: 'Local Vision ONNX (38ms)',
       risk: { tier: 'LOW', score: 0.18 },
       confidence: 89,
@@ -57,6 +64,7 @@ export default function LogsPage() {
       timestamp: '21:32:15',
       task: 'Download quarterly expenditure statement',
       status: 'Completed (Self-Corrected)',
+      filterType: 'CORRECTION',
       perception: 'DOM First (15ms)',
       risk: { tier: 'MEDIUM', score: 0.48 },
       confidence: 92,
@@ -76,6 +84,7 @@ export default function LogsPage() {
       timestamp: '20:45:00',
       task: 'Review infrastructure vendor bids',
       status: 'Completed',
+      filterType: 'DOM',
       perception: 'DOM First (11ms)',
       risk: { tier: 'LOW', score: 0.12 },
       confidence: 98,
@@ -91,10 +100,19 @@ export default function LogsPage() {
     }
   ];
 
-  const filteredLogs = auditLogs.filter(log =>
-    log.task.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.status.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleCopyTrace = (log, e) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(JSON.stringify(log, null, 2));
+    setCopiedId(log.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const filteredLogs = auditLogs.filter(log => {
+    const matchesSearch = log.task.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.status.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = selectedFilter === 'ALL' || log.filterType === selectedFilter;
+    return matchesSearch && matchesFilter;
+  });
 
   const toggleExpand = (id) => {
     setExpandedId(prev => (prev === id ? null : id));
@@ -110,18 +128,49 @@ export default function LogsPage() {
             Full transparent trace of observations, privacy interventions, risk assessments, and execution state checks.
           </p>
         </div>
-        <div className={styles.searchBar}>
-          <Search size={16} color="var(--text-muted)" />
-          <input 
-            type="text" 
-            placeholder="Search task or status..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        
+        <div className={styles.topActions}>
+          <div className={styles.searchBar}>
+            <Search size={16} color="var(--text-subtle)" />
+            <input 
+              type="text" 
+              placeholder="Search audit tasks or status..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Logs Table / Cards */}
+      {/* Filter Tabs */}
+      <div className={styles.filterPillsRow}>
+        <button 
+          className={`${styles.filterPill} ${selectedFilter === 'ALL' ? styles.filterPillActive : ''}`}
+          onClick={() => setSelectedFilter('ALL')}
+        >
+          All Traces ({auditLogs.length})
+        </button>
+        <button 
+          className={`${styles.filterPill} ${selectedFilter === 'DOM' ? styles.filterPillActive : ''}`}
+          onClick={() => setSelectedFilter('DOM')}
+        >
+          <Zap size={12} /> DOM Fast-Path
+        </button>
+        <button 
+          className={`${styles.filterPill} ${selectedFilter === 'VISION' ? styles.filterPillActive : ''}`}
+          onClick={() => setSelectedFilter('VISION')}
+        >
+          <Eye size={12} /> Vision Fallbacks
+        </button>
+        <button 
+          className={`${styles.filterPill} ${selectedFilter === 'CORRECTION' ? styles.filterPillActive : ''}`}
+          onClick={() => setSelectedFilter('CORRECTION')}
+        >
+          <RefreshCw size={12} /> Self-Corrected
+        </button>
+      </div>
+
+      {/* Logs List / Cards */}
       <div className={styles.logsList}>
         {filteredLogs.map((log) => {
           const isExpanded = expandedId === log.id;
@@ -152,7 +201,14 @@ export default function LogsPage() {
 
                 <div className={styles.logRight}>
                   <span className="badge success">{log.status}</span>
-                  <button className={styles.expandBtn}>
+                  <button 
+                    className={styles.copyBtn} 
+                    onClick={(e) => handleCopyTrace(log, e)}
+                    title="Copy Trace JSON"
+                  >
+                    {copiedId === log.id ? <Check size={14} color="#34d399" /> : <Copy size={14} />}
+                  </button>
+                  <button className={styles.expandBtn} aria-label="Toggle Details">
                     {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                   </button>
                 </div>
@@ -162,9 +218,11 @@ export default function LogsPage() {
               {isExpanded && (
                 <div className={`${styles.explainableDrawer} fade-in`}>
                   <div className={styles.drawerHeader}>
-                    <Layers size={16} color="var(--accent-purple)" />
-                    <strong>Explainable 6-Stage Action Trace Pipeline</strong>
-                    <span className={styles.savedMetric}>Context Minimized: {log.cloudContextSaved}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                      <Layers size={16} color="var(--accent-purple)" />
+                      <strong>Explainable 6-Stage Action Trace Pipeline</strong>
+                    </div>
+                    <span className={styles.savedMetric}>Cloud Context Minimized: {log.cloudContextSaved}</span>
                   </div>
 
                   <div className={styles.traceTimeline}>
@@ -182,7 +240,7 @@ export default function LogsPage() {
                   </div>
 
                   <div className={styles.piiTagContainer}>
-                    <span className={styles.piiTagHeader}>Protected Entities in this Task:</span>
+                    <span className={styles.piiTagHeader}>Protected Entities in this Execution:</span>
                     {log.piiBlocked.map((item, i) => (
                       <span key={i} className={styles.piiPill}>
                         🔒 {item}

@@ -9,12 +9,16 @@ import {
   Database,
   ArrowRight,
   TrendingDown,
-  Sparkles
+  Sparkles,
+  Play
 } from 'lucide-react';
 import styles from './PrivacyMonitorPage.module.css';
 
 export default function PrivacyMonitorPage() {
   const [selectedFilter, setSelectedFilter] = useState('ALL');
+  const [sandboxInput, setSandboxInput] = useState('Contact manager Vaibhav at 9876543210 or Aadhaar 4321 8765 1098. Password is password123.');
+  const [sandboxSanitized, setSandboxSanitized] = useState('');
+  const [tested, setTested] = useState(false);
 
   const piiRules = [
     { id: 1, type: 'Aadhaar / National ID', pattern: '\\d{4}\\s?\\d{4}\\s?\\d{4}', action: 'BLOCK & MASK', confidence: '99.4%', status: 'Active', detectionsToday: 48 },
@@ -25,6 +29,18 @@ export default function PrivacyMonitorPage() {
     { id: 6, type: 'PAN Card (India)', pattern: '[A-Z]{5}[0-9]{4}[A-Z]{1}', action: 'BLOCK & MASK', confidence: '99.1%', status: 'Active', detectionsToday: 29 },
   ];
 
+  const handleTestSandbox = () => {
+    // Client-side regex PII redactor simulation
+    let sanitized = sandboxInput
+      .replace(/\b\d{4}\s?\d{4}\s?\d{4}\b/g, '[REDACTED_AADHAAR]')
+      .replace(/(\+91|0)?[6-9]\d{9}/g, '[REDACTED_PHONE]')
+      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[REDACTED_EMAIL]')
+      .replace(/password\s*(is|=|:)\s*\S+/gi, 'password is [STRICT_BLOCKED]');
+    
+    setSandboxSanitized(sanitized);
+    setTested(true);
+  };
+
   const filteredRules = selectedFilter === 'ALL' 
     ? piiRules 
     : piiRules.filter(r => r.action.includes(selectedFilter));
@@ -34,7 +50,7 @@ export default function PrivacyMonitorPage() {
       {/* Top Header */}
       <div className={styles.header}>
         <div>
-          <h2 className={styles.title}>Privacy Monitor & Firewall Inspector</h2>
+          <h2 className={styles.title}>Privacy Monitor &amp; Firewall Inspector</h2>
           <p className={styles.subtitle}>
             Inspect the on-device Privacy Firewall, local PII classification engine, and cloud context minimization telemetry.
           </p>
@@ -47,7 +63,6 @@ export default function PrivacyMonitorPage() {
 
       {/* 4 Metric Summary Cards */}
       <div className={styles.metricsGrid}>
-        {/* Metric 1 */}
         <div className="card">
           <div className={styles.metricHeader}>
             <TrendingDown size={18} color="var(--accent-success)" />
@@ -57,7 +72,6 @@ export default function PrivacyMonitorPage() {
           <div className={styles.metricSub}>Average token/byte reduction before server call</div>
         </div>
 
-        {/* Metric 2 */}
         <div className="card">
           <div className={styles.metricHeader}>
             <ShieldAlert size={18} color="var(--accent-warning)" />
@@ -67,17 +81,15 @@ export default function PrivacyMonitorPage() {
           <div className={styles.metricSub}>PII tokens intercepted locally across sessions</div>
         </div>
 
-        {/* Metric 3 */}
         <div className="card">
           <div className={styles.metricHeader}>
             <Cpu size={18} color="var(--accent-primary)" />
             <span>Local ONNX WASM Latency</span>
           </div>
           <div className={styles.metricBig}>14.2ms</div>
-          <div className={styles.metricSub}>On-device perception & redaction speed</div>
+          <div className={styles.metricSub}>On-device perception &amp; redaction speed</div>
         </div>
 
-        {/* Metric 4 */}
         <div className="card">
           <div className={styles.metricHeader}>
             <Database size={18} color="var(--accent-cyan)" />
@@ -85,6 +97,50 @@ export default function PrivacyMonitorPage() {
           </div>
           <div className={styles.metricBig}>0 PII</div>
           <div className={styles.metricSub}>Zero credentials/screenshots persisted in memory</div>
+        </div>
+      </div>
+
+      {/* Interactive Live PII Firewall Sandbox Tester */}
+      <div className={`card ${styles.sandboxCard}`}>
+        <div className={styles.sandboxHeader}>
+          <div className={styles.sandboxTitleWrap}>
+            <Sparkles size={20} color="var(--accent-primary)" />
+            <div>
+              <h3 className={styles.sectionTitle}>Interactive Privacy Firewall Tester</h3>
+              <p className={styles.sectionDesc}>
+                Test on-device PII classification and regex token masking in real-time.
+              </p>
+            </div>
+          </div>
+
+          <button className={styles.testBtn} onClick={handleTestSandbox}>
+            <Play size={15} fill="currentColor" />
+            <span>Enforce Firewall Filter</span>
+          </button>
+        </div>
+
+        <div className={styles.sandboxGrid}>
+          <div className={styles.sandboxCol}>
+            <label className={styles.sandboxLabel}>INPUT (Raw Unsanitized Text / DOM Snippet):</label>
+            <textarea
+              className={styles.sandboxTextarea}
+              value={sandboxInput}
+              onChange={(e) => setSandboxInput(e.target.value)}
+              placeholder="Paste raw text with phones, Aadhaar, passwords..."
+              rows={4}
+            />
+          </div>
+
+          <div className={styles.sandboxCol}>
+            <label className={styles.sandboxLabel}>OUTPUT (Sanitized Payload for Cloud LLM):</label>
+            <div className={styles.sandboxOutputBox}>
+              {tested ? (
+                <p className={styles.sanitizedOutputText}>{sandboxSanitized}</p>
+              ) : (
+                <span className={styles.placeholderText}>Click "Enforce Firewall Filter" to inspect sanitized output...</span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -115,7 +171,7 @@ export default function PrivacyMonitorPage() {
               <Lock size={20} color="var(--accent-warning)" />
             </div>
             <h4>Privacy Firewall</h4>
-            <p>Classify & Redact: Passwords, Aadhaar, Phone</p>
+            <p>Classify &amp; Redact: Passwords, Aadhaar, Phone</p>
           </div>
 
           <div className={styles.flowArrow}>
@@ -140,8 +196,8 @@ export default function PrivacyMonitorPage() {
             <div className={styles.nodeIconWrap} style={{ background: 'rgba(139, 92, 246, 0.15)' }}>
               <CheckCircle size={20} color="var(--accent-purple)" />
             </div>
-            <h4>Risk & Local Exec</h4>
-            <p>Confidence & Risk Engine validates action</p>
+            <h4>Risk &amp; Local Exec</h4>
+            <p>Confidence &amp; Risk Engine validates action</p>
           </div>
         </div>
       </div>

@@ -15,18 +15,54 @@ import {
   Fingerprint,
   FileText,
   Lock,
-  Cpu
+  Cpu,
+  Sparkles,
+  Copy,
+  Check,
+  Search
 } from 'lucide-react';
 import styles from './BrowserAgentPage.module.css';
 
 export default function BrowserAgentPage() {
-  // Task & Execution States
-  const [task, setTask] = useState('Find the project report and download it');
-  const [agentState, setAgentState] = useState('IDLE'); // IDLE, SCANNING_DOM, VISION_FALLBACK, DETECTING_PII, FIREWALL_FILTER, ROUTING_LLM, RISK_EVAL, VERIFYING, SELF_CORRECTING, EXECUTING, COMPLETED
+  // Preset Demo Scenarios
+  const scenarios = [
+    {
+      id: 'report',
+      title: 'Download Annual Project Report',
+      task: 'Find the project report and download it',
+      canvas: false,
+      risk: { tier: 'MEDIUM', score: 0.42, reason: 'Verified Gov.in PDF download' },
+      piiCount: 3,
+      confidence: 96
+    },
+    {
+      id: 'finance',
+      title: 'Export Financial Audit (High PII)',
+      task: 'Export Q4 Financial Expenditure and balance sheet',
+      canvas: false,
+      risk: { tier: 'MEDIUM', score: 0.48, reason: 'Financial tabular data export' },
+      piiCount: 4,
+      confidence: 93
+    },
+    {
+      id: 'canvas',
+      title: 'Canvas Control (Adaptive Vision)',
+      task: 'Locate visual action button on graphical canvas',
+      canvas: true,
+      risk: { tier: 'LOW', score: 0.18, reason: 'Visual map coordinate inspection' },
+      piiCount: 2,
+      confidence: 88
+    }
+  ];
+
+  const [activeScenario, setActiveScenario] = useState('report');
+  const [task, setTask] = useState(scenarios[0].task);
+  const [agentState, setAgentState] = useState('IDLE'); // IDLE, OBSERVE, DETECT, FILTER, REASON, VALIDATE, EXECUTE, COMPLETED
   const [sanitizedView, setSanitizedView] = useState(true);
   const [highlightSensitives, setHighlightSensitives] = useState(true);
   const [simulateSelfCorrection, setSimulateSelfCorrection] = useState(false);
   const [simulateCanvasTarget, setSimulateCanvasTarget] = useState(false);
+  const [copiedTrace, setCopiedTrace] = useState(false);
   
   // Roadmap Feature 1: Privacy Firewall & Privacy Budget
   const [privacyMode, setPrivacyMode] = useState('balanced'); // strict, balanced, automation
@@ -57,50 +93,56 @@ export default function BrowserAgentPage() {
   // Roadmap Feature 5: Explainable Action Trace
   const [traceSteps, setTraceSteps] = useState([
     {
-      id: 'OBSERVED',
-      label: '1. Observed UI Elements',
+      id: 'OBSERVE',
+      num: 1,
+      label: 'Observe UI',
+      desc: 'DOM & Accessibility Tree parsed: 14 interactive nodes, 3 containers',
       status: 'idle',
-      detail: 'DOM & Accessibility Tree parsed: 14 interactive nodes, 3 data containers',
       badge: 'DOM / a11y',
       expanded: false
     },
     {
-      id: 'DETECTED',
-      label: '2. Sensitive Element Detector',
+      id: 'DETECT',
+      num: 2,
+      label: 'Detect PII',
+      desc: 'Local regex & ONNX detected 3 PII entities: Aadhaar, Phone, Email',
       status: 'idle',
-      detail: 'Local regex & ONNX detected 3 PII entities: Aadhaar (Gov ID), Phone (+91), Email',
       badge: '3 PII Detected',
       expanded: false
     },
     {
-      id: 'FILTERED',
-      label: '3. Privacy Firewall Enforcement',
+      id: 'FILTER',
+      num: 3,
+      label: 'Privacy Firewall',
+      desc: 'Firewall Policy: Balanced. Redacted PII locally. 0 confidential tokens leaked',
       status: 'idle',
-      detail: 'Firewall Policy: Balanced. Redacted 3 PII fields locally. Safe UI tokens generated: 11',
       badge: '0 PII Transmitted',
       expanded: false
     },
     {
-      id: 'REASONED',
-      label: '4. Intelligent Hybrid Reasoning',
+      id: 'REASON',
+      num: 4,
+      label: 'Hybrid Reasoner',
+      desc: 'Cloud LLM Reasoner mapped goal -> CLICK(Project_Report.pdf) with sanitized context',
       status: 'idle',
-      detail: 'Cloud LLM Reasoner analyzed sanitized structured tree: Target matched CLICK(Project_Report.pdf)',
       badge: 'Cloud LLM (Safe)',
       expanded: false
     },
     {
-      id: 'VALIDATED',
-      label: '5. Action Risk & Confidence Check',
+      id: 'VALIDATE',
+      num: 5,
+      label: 'Risk & Confidence',
+      desc: 'Risk: 0.42 (Medium) | Confidence: 96% (>90% threshold for direct execute)',
       status: 'idle',
-      detail: 'Risk Score: 0.42 (Medium) | Confidence: 96% (>90% threshold for direct execute)',
       badge: 'Risk: Med | Conf: 96%',
       expanded: false
     },
     {
-      id: 'EXECUTED',
-      label: '6. Local Action & State Verification',
+      id: 'EXECUTE',
+      num: 6,
+      label: 'Execute & Verify',
+      desc: 'Dispatched native DOM click event on #download-btn-1. Verified state 200 OK',
       status: 'idle',
-      detail: 'Dispatched native DOM click event on #download-btn-1. Verified state change: 200 OK',
       badge: 'Verified Success',
       expanded: false
     }
@@ -112,8 +154,8 @@ export default function BrowserAgentPage() {
   // Roadmap Feature 7: Intelligent Local/Cloud Routing State
   const [routingStats, setRoutingStats] = useState({
     localPerceptionDuration: '14ms',
-    cloudReasoningDuration: '320ms',
-    contextMinimizedPercent: '89.2%'
+    cloudReasoningDuration: '280ms',
+    contextMinimizedPercent: '91.5%'
   });
 
   // Roadmap Feature 9: Task Memory
@@ -130,13 +172,28 @@ export default function BrowserAgentPage() {
     setLogs(prev => [...prev, { time, message, type }]);
   };
 
+  const handleSelectScenario = (sc) => {
+    if (agentState !== 'IDLE' && agentState !== 'COMPLETED') return;
+    setActiveScenario(sc.id);
+    setTask(sc.task);
+    setSimulateCanvasTarget(sc.canvas);
+    setActionRisk({
+      tier: sc.risk.tier,
+      score: sc.risk.score,
+      reason: sc.risk.reason,
+      autoVerified: true
+    });
+    setConfidenceScore(sc.confidence);
+    setAmbiguityLevel(sc.confidence > 90 ? 'LOW' : 'MEDIUM');
+  };
+
   const updateTraceStep = (stepId, status, customDetail = null) => {
     setTraceSteps(prev => prev.map(s => {
       if (s.id === stepId) {
         return {
           ...s,
           status,
-          ...(customDetail ? { detail: customDetail } : {})
+          ...(customDetail ? { desc: customDetail } : {})
         };
       }
       return s;
@@ -147,8 +204,24 @@ export default function BrowserAgentPage() {
     setTraceSteps(prev => prev.map(s => s.id === stepId ? { ...s, expanded: !s.expanded } : s));
   };
 
+  const copyTraceJson = () => {
+    const payload = JSON.stringify({
+      task,
+      privacyMode,
+      perceptionMode,
+      confidenceScore,
+      actionRisk,
+      traceSteps,
+      routingStats,
+      timestamp: new Date().toISOString()
+    }, null, 2);
+    navigator.clipboard.writeText(payload);
+    setCopiedTrace(true);
+    setTimeout(() => setCopiedTrace(false), 2000);
+  };
+
   const triggerDummyDownload = () => {
-    const content = "=== SIH26171 PRIVAGENT VERIFIED DOWNLOAD ===\n\nReport: Smart Infrastructure Project Report 2026\nStatus: Verified Non-PII Context Execution\nPrivacy Mode: " + privacyMode.toUpperCase() + "\nPrivacy Budget Saved: 91.5%\nPerception Mode: " + perceptionMode + "\nConfidence Score: " + confidenceScore + "%\nRisk Score: " + actionRisk.score + "\n\nAll personal identifiers (Aadhaar, Phone, Email) were intercepted and masked locally before cloud reasoning.";
+    const content = `=== SIH26171 PRIVAGENT VERIFIED DOWNLOAD ===\n\nTask: ${task}\nStatus: Verified Execution\nPrivacy Mode: ${privacyMode.toUpperCase()}\nPrivacy Budget Saved: ${privacyBudget.percentProtected}%\nPerception Mode: ${perceptionMode}\nConfidence Score: ${confidenceScore}%\nRisk Score: ${actionRisk.score}\n\nAll personal identifiers (Aadhaar, Phone, Email) were intercepted and masked locally before cloud reasoning.`;
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -168,37 +241,37 @@ export default function BrowserAgentPage() {
     setTraceSteps(prev => prev.map(s => ({ ...s, status: 'pending' })));
 
     // STEP 1: Adaptive Perception (DOM vs Local Vision)
-    setAgentState('SCANNING_DOM');
+    setAgentState('OBSERVE');
     addLog(`Task initiated: "${task}"`, 'primary');
     
     if (simulateCanvasTarget) {
       setPerceptionMode('VISION_ONNX');
       setPerceptionTimeMs(38);
       addLog('Adaptive Perception: Canvas / Visual element detected -> Invoking Local Vision (ONNX Runtime Web)', 'warning');
-      updateTraceStep('OBSERVED', 'active', 'Visual-only canvas detected. Local Vision ONNX invoked (WebGPU/WASM): Bounding box calculated');
+      updateTraceStep('OBSERVE', 'active', 'Visual-only canvas detected. Local Vision ONNX (WebGPU/WASM) computed bounding boxes in 38ms');
     } else {
       setPerceptionMode('DOM_FIRST');
       setPerceptionTimeMs(12);
-      addLog('Adaptive Perception: DOM/a11y First (Fast-Path structural extraction)', 'info');
-      updateTraceStep('OBSERVED', 'active', 'DOM & Accessibility Tree parsed: 14 interactive nodes, 3 data containers');
+      addLog('Adaptive Perception: DOM/a11y First (Fast-Path structural extraction in 12ms)', 'info');
+      updateTraceStep('OBSERVE', 'active', 'DOM & Accessibility Tree parsed: 14 interactive nodes, 3 data containers');
     }
 
     setTimeout(() => {
-      updateTraceStep('OBSERVED', 'completed');
+      updateTraceStep('OBSERVE', 'completed');
       
       // STEP 2: Sensitive Element Detector
-      setAgentState('DETECTING_PII');
+      setAgentState('DETECT');
       addLog('Sensitive Element Detector: Scanning for PII entities...', 'warning');
-      updateTraceStep('DETECTED', 'active');
+      updateTraceStep('DETECT', 'active');
       addLog('Detected: [Aadhaar: 4321-8765-1098] | [Phone: 9876543210] | [Email: vaibhav@example.com]', 'warning');
-    }, 1200);
+    }, 1100);
 
     // STEP 3: Privacy Firewall & Privacy Budget
     setTimeout(() => {
-      updateTraceStep('DETECTED', 'completed');
-      setAgentState('FIREWALL_FILTER');
+      updateTraceStep('DETECT', 'completed');
+      setAgentState('FILTER');
       addLog(`Privacy Firewall [Mode: ${privacyMode.toUpperCase()}]: Enforcing local masking...`, 'primary');
-      updateTraceStep('FILTERED', 'active');
+      updateTraceStep('FILTER', 'active');
       
       if (privacyMode === 'strict') {
         setPrivacyBudget({
@@ -219,14 +292,14 @@ export default function BrowserAgentPage() {
       }
       setSanitizedView(true);
       addLog('Privacy Firewall: Zero PII permitted across boundary. 91.5% context minimized.', 'success');
-    }, 2400);
+    }, 2200);
 
     // STEP 4: Intelligent Local/Cloud Routing
     setTimeout(() => {
-      updateTraceStep('FILTERED', 'completed');
-      setAgentState('ROUTING_LLM');
+      updateTraceStep('FILTER', 'completed');
+      setAgentState('REASON');
       addLog('Intelligent Router: Dispatching sanitized structured tokens to LLM...', 'info');
-      updateTraceStep('REASONED', 'active');
+      updateTraceStep('REASON', 'active');
       
       setRoutingStats({
         localPerceptionDuration: `${perceptionTimeMs}ms`,
@@ -234,12 +307,12 @@ export default function BrowserAgentPage() {
         contextMinimizedPercent: '91.5%'
       });
       addLog('LLM Reasoning output: Proposed CLICK(#download-report-btn)', 'primary');
-    }, 3800);
+    }, 3400);
 
     // STEP 5: Action Risk & Permission Engine + Confidence Scoring
     setTimeout(() => {
-      updateTraceStep('REASONED', 'completed');
-      setAgentState('RISK_EVAL');
+      updateTraceStep('REASON', 'completed');
+      setAgentState('VALIDATE');
       
       const calculatedConf = simulateCanvasTarget ? 88 : 96;
       setConfidenceScore(calculatedConf);
@@ -254,15 +327,15 @@ export default function BrowserAgentPage() {
 
       addLog(`Confidence-Aware Agent: Confidence = ${calculatedConf}% (>90% Auto-Execute)`, 'success');
       addLog('Action Risk Engine: Evaluated CLICK(Download) -> Risk: MEDIUM (0.42) - Pre-validated', 'success');
-      updateTraceStep('VALIDATED', 'active');
-    }, 5000);
+      updateTraceStep('VALIDATE', 'active');
+    }, 4500);
 
     // STEP 6: Self-Correction Loop / Execution
     setTimeout(() => {
-      updateTraceStep('VALIDATED', 'completed');
+      updateTraceStep('VALIDATE', 'completed');
       
       if (simulateSelfCorrection) {
-        setAgentState('SELF_CORRECTING');
+        setAgentState('EXECUTE');
         setCorrectionAttempts(1);
         addLog('Self-Correction Loop: Initial target selector stale / intercepted!', 'warning');
         addLog('Re-perceiving local DOM state and selecting alternative selector...', 'warning');
@@ -270,81 +343,101 @@ export default function BrowserAgentPage() {
         setTimeout(() => {
           setCorrectionAttempts(2);
           addLog('Self-Correction: Alternate selector resolved (#btn-download-primary). Verified state match.', 'success');
-          setAgentState('EXECUTING');
-          updateTraceStep('EXECUTED', 'active', 'Self-corrected selector (#btn-download-primary). Verified state change: 200 OK');
+          updateTraceStep('EXECUTE', 'active', 'Self-corrected selector (#btn-download-primary). Verified state change: 200 OK');
           
           setTimeout(() => {
             triggerDummyDownload();
             setAgentState('COMPLETED');
-            updateTraceStep('EXECUTED', 'completed');
+            updateTraceStep('EXECUTE', 'completed');
             addLog('Task Completed Successfully with verified trace', 'success');
-          }, 1200);
-        }, 1500);
+          }, 1100);
+        }, 1300);
       } else {
-        setAgentState('EXECUTING');
-        updateTraceStep('EXECUTED', 'active');
+        setAgentState('EXECUTE');
+        updateTraceStep('EXECUTE', 'active');
         addLog('Local Executor: Triggering action on verified element...', 'primary');
         
         setTimeout(() => {
           triggerDummyDownload();
           setAgentState('COMPLETED');
-          updateTraceStep('EXECUTED', 'completed');
+          updateTraceStep('EXECUTE', 'completed');
           addLog('Task Completed Successfully with verified trace', 'success');
-        }, 1200);
+        }, 1100);
       }
-    }, 6200);
+    }, 5600);
   };
 
   const isRunning = agentState !== 'IDLE' && agentState !== 'COMPLETED';
 
   return (
     <div className={styles.container}>
-      {/* Top Header with Badges */}
+      {/* Top Header */}
       <div className={styles.header}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
+          <div className={styles.titleRow}>
             <h2 className={styles.title}>AI Browser Agent</h2>
-            <span className="badge primary">SIH26171 Engine</span>
+            <span className="badge primary">SIH26171 Execution Sandbox</span>
           </div>
           <p className={styles.subtitle}>
             On-device visual perception, local privacy firewall, risk validation, and explainable action tracing.
           </p>
         </div>
 
-        {/* Live Architecture Indicators */}
+        {/* Header Telemetry Badges */}
         <div className={styles.headerBadges}>
           <div className={`${styles.statusChip} ${isRunning ? styles.statusPulse : ''}`}>
             <span className={styles.chipDot}></span>
-            Status: <strong>{agentState.replace('_', ' ')}</strong>
+            <span>Pipeline: <strong>{agentState === 'IDLE' ? 'STANDBY' : agentState}</strong></span>
           </div>
 
           <div className={styles.perceptionChip}>
             {perceptionMode === 'DOM_FIRST' ? (
               <span className="badge success">
-                <Zap size={14} /> Adaptive: DOM First ({perceptionTimeMs}ms)
+                <Zap size={13} /> DOM Fast-Path ({perceptionTimeMs}ms)
               </span>
             ) : (
               <span className="badge warning">
-                <Eye size={14} /> Adaptive: Local Vision ONNX ({perceptionTimeMs}ms)
+                <Eye size={13} /> Local Vision ONNX ({perceptionTimeMs}ms)
               </span>
             )}
           </div>
         </div>
       </div>
 
-      {/* Task Input & Control Bar */}
+      {/* Preset Scenario Selector Buttons */}
+      <div className={styles.scenarioBar}>
+        <span className={styles.scenarioLabel}>QUICK TEST PRESETS:</span>
+        <div className={styles.scenarioChips}>
+          {scenarios.map((sc) => (
+            <button
+              key={sc.id}
+              className={`${styles.scenarioBtn} ${activeScenario === sc.id ? styles.scenarioActive : ''}`}
+              onClick={() => handleSelectScenario(sc)}
+              disabled={isRunning}
+            >
+              <Sparkles size={13} />
+              <span>{sc.title}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Task Input & Control Bar */}
       <div className={`card ${styles.taskCard}`}>
         <div className={styles.taskBarRow}>
           <div className={styles.inputWrapper}>
-            <label className={styles.inputLabel}>Agent Goal / Instructions</label>
-            <input 
-              type="text" 
-              className={styles.taskInput}
-              value={task} 
-              onChange={(e) => setTask(e.target.value)}
-              disabled={isRunning}
-              placeholder="E.g. Find the project report and download it"
-            />
+            <label className={styles.inputLabel}>Agent Instructions &amp; Intent Goal</label>
+            <div className={styles.inputIconGroup}>
+              <Search size={17} className={styles.searchIcon} />
+              <input 
+                type="text" 
+                className={styles.taskInput}
+                value={task} 
+                onChange={(e) => setTask(e.target.value)}
+                disabled={isRunning}
+                placeholder="E.g. Find the project report and download it"
+              />
+            </div>
           </div>
 
           <button 
@@ -371,7 +464,7 @@ export default function BrowserAgentPage() {
           {/* Privacy Firewall Mode Switcher */}
           <div className={styles.controlGroup}>
             <span className={styles.controlLabel}>
-              <Lock size={14} /> Privacy Firewall:
+              <Lock size={13} /> Privacy Firewall:
             </span>
             <div className={styles.pillGroup}>
               {['strict', 'balanced', 'automation'].map((mode) => (
@@ -387,7 +480,7 @@ export default function BrowserAgentPage() {
             </div>
           </div>
 
-          {/* Demonstration Toggles */}
+          {/* Interactive Demos Toggles */}
           <div className={styles.togglesGroup}>
             <label className={styles.toggleLabel}>
               <input 
@@ -414,9 +507,33 @@ export default function BrowserAgentPage() {
         </div>
       </div>
 
+      {/* Visual Pipeline Progression Stepper */}
+      <div className={`card ${styles.stepperCard}`}>
+        <div className={styles.stepperContainer}>
+          {traceSteps.map((st, i) => {
+            const isDone = st.status === 'completed';
+            const isActive = st.status === 'active';
+            return (
+              <React.Fragment key={st.id}>
+                <div className={`${styles.stepperItem} ${isActive ? styles.stepActive : ''} ${isDone ? styles.stepDone : ''}`}>
+                  <div className={styles.stepCircle}>
+                    {isDone ? <Check size={13} /> : <span>{st.num}</span>}
+                  </div>
+                  <div className={styles.stepInfo}>
+                    <span className={styles.stepName}>{st.label}</span>
+                    <span className={styles.stepSubBadge}>{st.badge}</span>
+                  </div>
+                </div>
+                {i < traceSteps.length - 1 && <div className={`${styles.stepLine} ${isDone ? styles.stepLineDone : ''}`}></div>}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Main 2-Column Responsive Workspace */}
       <div className={styles.mainWorkspace}>
-        {/* Left Column: Simulated Browser Window with Live Privacy Highlights */}
+        {/* Left Column: Simulated Browser Window */}
         <div className={styles.browserColumn}>
           {/* Browser Controls & View Mode */}
           <div className={styles.browserToolbar}>
@@ -425,8 +542,8 @@ export default function BrowserAgentPage() {
                 className={`${styles.viewBtn} ${sanitizedView ? styles.viewBtnActive : ''}`}
                 onClick={() => setSanitizedView(true)}
               >
-                <ShieldCheck size={15} color="var(--accent-success)" />
-                Sanitized View (AI Perception)
+                <ShieldCheck size={14} color="var(--accent-success)" />
+                Sanitized View (Agent View)
               </button>
               <button 
                 className={`${styles.viewBtn} ${!sanitizedView ? styles.viewBtnActive : ''}`}
@@ -450,6 +567,7 @@ export default function BrowserAgentPage() {
 
           {/* Mock Browser Frame */}
           <div className={styles.browserFrame}>
+            {/* Mac/Chrome Window Header */}
             <div className={styles.browserFrameHeader}>
               <div className={styles.dots}>
                 <span></span>
@@ -457,24 +575,24 @@ export default function BrowserAgentPage() {
                 <span></span>
               </div>
               <div className={styles.urlBar}>
-                <Lock size={12} color="var(--accent-success)" />
+                <Lock size={12} color="#10b981" />
                 <span>https://gov.in/portal/infrastructure/reports</span>
               </div>
               <span className={styles.sslBadge}>Protected Context</span>
             </div>
 
             <div className={styles.browserFrameContent}>
-              {/* Scan Overlay during active processing */}
-              {(agentState === 'SCANNING_DOM' || agentState === 'DETECTING_PII') && (
+              {/* Scan Laser Overlay */}
+              {(agentState === 'OBSERVE' || agentState === 'DETECT') && (
                 <div className={styles.scanOverlay}></div>
               )}
 
               {/* Cursor Simulation during execution */}
-              {(agentState === 'EXECUTING' || agentState === 'SELF_CORRECTING') && (
+              {(agentState === 'EXECUTE') && (
                 <div className={styles.cursorSim}>
-                  <MousePointer2 size={24} fill="#3b82f6" color="#ffffff" />
+                  <MousePointer2 size={26} fill="#3b82f6" color="#ffffff" />
                   <span className={styles.cursorLabel}>
-                    {agentState === 'SELF_CORRECTING' ? 'Self-Correcting Target...' : 'Clicking Verified Element'}
+                    {simulateSelfCorrection && correctionAttempts === 1 ? 'Retrying Alternative...' : 'Clicking Verified Target'}
                   </span>
                 </div>
               )}
@@ -483,7 +601,7 @@ export default function BrowserAgentPage() {
               <div className={styles.pageHeader}>
                 <div className={styles.pageHeaderTitle}>
                   <h3>Infrastructure Project Management Portal</h3>
-                  <p>National Development & Public Works Registry</p>
+                  <p>National Development &amp; Public Works Registry</p>
                 </div>
                 <div className={styles.govEmblem}>GOV.IN VERIFIED</div>
               </div>
@@ -493,7 +611,7 @@ export default function BrowserAgentPage() {
                 <div className={styles.detectorSectionHeader}>
                   <span className={styles.detectorTitle}>
                     <Fingerprint size={16} color="var(--accent-primary)" />
-                    User & Project Metadata (PII Shield Active)
+                    Project Metadata (PII Firewall Interception Active)
                   </span>
                   <div className={styles.detectorBadgesList}>
                     <span className="badge warning">■ Aadhaar Masked</span>
@@ -513,7 +631,7 @@ export default function BrowserAgentPage() {
                   </div>
                   
                   {/* PII Field 1: Phone */}
-                  <div className={`${styles.dataFieldItem} ${highlightSensitives && agentState === 'DETECTING_PII' ? styles.fieldHighlight : ''}`}>
+                  <div className={`${styles.dataFieldItem} ${highlightSensitives && agentState === 'DETECT' ? styles.fieldHighlight : ''}`}>
                     <span className={styles.fieldLabel}>Contact Phone:</span>
                     {sanitizedView ? (
                       <span className="redacted-block" style={{ width: '130px' }}></span>
@@ -524,7 +642,7 @@ export default function BrowserAgentPage() {
                   </div>
 
                   {/* PII Field 2: Aadhaar Number */}
-                  <div className={`${styles.dataFieldItem} ${highlightSensitives && agentState === 'DETECTING_PII' ? styles.fieldHighlight : ''}`}>
+                  <div className={`${styles.dataFieldItem} ${highlightSensitives && agentState === 'DETECT' ? styles.fieldHighlight : ''}`}>
                     <span className={styles.fieldLabel}>Gov ID / Aadhaar:</span>
                     {sanitizedView ? (
                       <span className="redacted-block" style={{ width: '150px' }}></span>
@@ -535,7 +653,7 @@ export default function BrowserAgentPage() {
                   </div>
 
                   {/* PII Field 3: Email */}
-                  <div className={`${styles.dataFieldItem} ${highlightSensitives && agentState === 'DETECTING_PII' ? styles.fieldHighlight : ''}`}>
+                  <div className={`${styles.dataFieldItem} ${highlightSensitives && agentState === 'DETECT' ? styles.fieldHighlight : ''}`}>
                     <span className={styles.fieldLabel}>Email Address:</span>
                     {sanitizedView ? (
                       <span className="redacted-block" style={{ width: '160px' }}></span>
@@ -547,7 +665,7 @@ export default function BrowserAgentPage() {
 
                   <div className={styles.dataFieldItem}>
                     <span className={styles.fieldLabel}>Clearance Status:</span>
-                    <span className="badge success">Approved & Public</span>
+                    <span className="badge success">Approved &amp; Public</span>
                   </div>
                 </div>
               </div>
@@ -556,12 +674,12 @@ export default function BrowserAgentPage() {
               <div className={styles.actionSection}>
                 <div className={styles.actionHeader}>
                   <FileText size={18} color="var(--accent-primary)" />
-                  <h4>Target Documents & Downloads</h4>
+                  <h4>Target Documents &amp; Exports</h4>
                 </div>
 
                 <div className={styles.docListGrid}>
                   {/* Target 1: Target Match */}
-                  <div className={`${styles.docCard} ${agentState === 'EXECUTING' || agentState === 'COMPLETED' ? styles.docCardActive : ''}`}>
+                  <div className={`${styles.docCard} ${agentState === 'EXECUTE' || agentState === 'COMPLETED' ? styles.docCardActive : ''}`}>
                     <div className={styles.docDetails}>
                       <div className={styles.docIconWrap}>
                         <FileDown size={20} color="var(--accent-primary)" />
@@ -580,15 +698,15 @@ export default function BrowserAgentPage() {
                       ) : (
                         <button 
                           id="download-btn-1"
-                          className={`${styles.actionDownloadBtn} ${agentState === 'EXECUTING' || agentState === 'COMPLETED' ? styles.btnExecuting : ''}`}
+                          className={`${styles.actionDownloadBtn} ${agentState === 'EXECUTE' || agentState === 'COMPLETED' ? styles.btnExecuting : ''}`}
                         >
                           <FileDown size={15} />
                           Download PDF
                         </button>
                       )}
                       
-                      {agentState === 'RISK_EVAL' && (
-                        <span className="badge warning">Evaluating Risk...</span>
+                      {agentState === 'VALIDATE' && (
+                        <span className="badge warning">Risk: Validating...</span>
                       )}
                     </div>
                   </div>
@@ -601,7 +719,7 @@ export default function BrowserAgentPage() {
                       </div>
                       <div>
                         <div className={styles.docTitle}>Financial_Quarterly_Report.pdf</div>
-                        <div className={styles.docMeta}>Q4 Expenditure & Balance Sheet (1.8 MB)</div>
+                        <div className={styles.docMeta}>Q4 Expenditure &amp; Balance Sheet (1.8 MB)</div>
                       </div>
                     </div>
                     <button className={styles.actionDownloadBtnSecondary}>
@@ -618,7 +736,7 @@ export default function BrowserAgentPage() {
                       </div>
                       <div>
                         <div className={styles.docTitle}>Project_Milestone_Schedule.pdf</div>
-                        <div className={styles.docMeta}>Gantt Timeline & Roadmaps (850 KB)</div>
+                        <div className={styles.docMeta}>Gantt Timeline &amp; Roadmaps (850 KB)</div>
                       </div>
                     </div>
                     <button className={styles.actionDownloadBtnSecondary}>
@@ -639,7 +757,7 @@ export default function BrowserAgentPage() {
             <div className={styles.cardHeaderWithIcon}>
               <ShieldCheck size={20} color="var(--accent-success)" />
               <div>
-                <h4 className={styles.cardHeaderTitle}>Privacy Firewall & Budget</h4>
+                <h4 className={styles.cardHeaderTitle}>Privacy Firewall &amp; Budget</h4>
                 <p className={styles.cardHeaderSub}>Real-time on-device context minimization</p>
               </div>
             </div>
@@ -677,7 +795,7 @@ export default function BrowserAgentPage() {
             <div className={styles.cardHeaderWithIcon}>
               <SlidersHorizontal size={20} color="var(--accent-primary)" />
               <div>
-                <h4 className={styles.cardHeaderTitle}>Risk & Confidence Engine</h4>
+                <h4 className={styles.cardHeaderTitle}>Risk &amp; Confidence Engine</h4>
                 <p className={styles.cardHeaderSub}>Safety validation before browser execution</p>
               </div>
             </div>
@@ -700,7 +818,7 @@ export default function BrowserAgentPage() {
                     {confidenceScore}% Confidence
                   </span>
                   <span className="badge primary" style={{ fontSize: '0.65rem' }}>
-                    Ambiguity: {ambiguityLevel}
+                    {ambiguityLevel} Ambiguity
                   </span>
                 </div>
                 <p className={styles.engineSub}>
@@ -723,7 +841,7 @@ export default function BrowserAgentPage() {
               <Cpu size={20} color="var(--accent-primary)" />
               <div>
                 <h4 className={styles.cardHeaderTitle}>Intelligent Local/Cloud Routing</h4>
-                <p className={styles.cardHeaderSub}>Hybrid processing & zero-PII cloud transmission</p>
+                <p className={styles.cardHeaderSub}>Hybrid processing &amp; zero-PII cloud transmission</p>
               </div>
             </div>
 
@@ -747,8 +865,14 @@ export default function BrowserAgentPage() {
           <div className={`card ${styles.traceCard}`}>
             <div className={styles.cardHeaderWithIcon}>
               <Layers size={20} color="var(--accent-purple)" />
-              <div>
-                <h4 className={styles.cardHeaderTitle}>Explainable Action Trace</h4>
+              <div style={{ flexGrow: 1 }}>
+                <div className={styles.traceHeaderTop}>
+                  <h4 className={styles.cardHeaderTitle}>Explainable Action Trace</h4>
+                  <button className={styles.copyJsonBtn} onClick={copyTraceJson}>
+                    {copiedTrace ? <Check size={12} /> : <Copy size={12} />}
+                    <span>{copiedTrace ? 'Copied' : 'JSON'}</span>
+                  </button>
+                </div>
                 <p className={styles.cardHeaderSub}>Transparent 6-stage execution pipeline</p>
               </div>
             </div>
@@ -762,7 +886,7 @@ export default function BrowserAgentPage() {
                   <div className={styles.traceStepTop} onClick={() => toggleTraceExpand(step.id)}>
                     <div className={styles.traceStepLeft}>
                       <span className={styles.traceNodeDot}></span>
-                      <span className={styles.traceStepLabel}>{step.label}</span>
+                      <span className={styles.traceStepLabel}>{step.num}. {step.label}</span>
                     </div>
                     <div className={styles.traceStepRight}>
                       <span className={styles.traceBadge}>{step.badge}</span>
@@ -772,7 +896,7 @@ export default function BrowserAgentPage() {
 
                   {step.expanded && (
                     <div className={`${styles.traceDetailBox} fade-in`}>
-                      <p>{step.detail}</p>
+                      <p>{step.desc}</p>
                     </div>
                   )}
                 </div>
@@ -785,7 +909,7 @@ export default function BrowserAgentPage() {
             <div className={styles.cardHeaderWithIcon}>
               <Database size={18} color="var(--accent-cyan)" />
               <div>
-                <h4 className={styles.cardHeaderTitle}>Task Memory & Safe Preferences</h4>
+                <h4 className={styles.cardHeaderTitle}>Task Memory &amp; Safe Preferences</h4>
                 <p className={styles.cardHeaderSub}>Zero credentials/screenshots persisted</p>
               </div>
             </div>

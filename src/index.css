@@ -1,35 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* Dashboard Dark Theme Colors */
-  --bg-dark: #0f1115;
-  --bg-sidebar: #15181e;
-  --bg-card: #1c1f26;
-  --bg-card-hover: #232730;
+  /* Ultra-Premium Dark Theme */
+  --bg-dark: #090b0f;
+  --bg-sidebar: #0f1218;
+  --bg-card: rgba(18, 22, 30, 0.75);
+  --bg-card-solid: #12161e;
+  --bg-card-hover: rgba(28, 34, 46, 0.85);
   
-  --border-color: #2e3440;
-  --border-light: rgba(255, 255, 255, 0.05);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color-hover: rgba(255, 255, 255, 0.18);
+  --border-light: rgba(255, 255, 255, 0.04);
   
-  --text-main: #f3f4f6;
-  --text-muted: #9ca3af;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
   
+  /* Cyber Accent Palette */
   --accent-primary: #3b82f6;
   --accent-primary-hover: #2563eb;
-  --accent-primary-glow: rgba(59, 130, 246, 0.25);
-  --accent-success: #10b981;
-  --accent-success-glow: rgba(16, 185, 129, 0.25);
-  --accent-warning: #f59e0b;
-  --accent-warning-glow: rgba(245, 158, 11, 0.25);
-  --accent-danger: #ef4444;
-  --accent-danger-glow: rgba(239, 68, 68, 0.25);
-  --accent-purple: #8b5cf6;
-  --accent-purple-glow: rgba(139, 92, 246, 0.25);
-  --accent-cyan: #06b6d4;
-  --accent-cyan-glow: rgba(6, 182, 212, 0.25);
+  --accent-primary-glow: rgba(59, 130, 246, 0.35);
   
-  /* Redaction Block */
-  --redact-bg: #111;
-  --redact-pattern: repeating-linear-gradient(45deg, #1f2229, #1f2229 5px, #16181d 5px, #16181d 10px);
+  --accent-success: #10b981;
+  --accent-success-hover: #059669;
+  --accent-success-glow: rgba(16, 185, 129, 0.3);
+  
+  --accent-warning: #f59e0b;
+  --accent-warning-glow: rgba(245, 158, 11, 0.3);
+  
+  --accent-danger: #ef4444;
+  --accent-danger-glow: rgba(239, 68, 68, 0.3);
+  
+  --accent-purple: #8b5cf6;
+  --accent-purple-glow: rgba(139, 92, 246, 0.3);
+  
+  --accent-cyan: #06b6d4;
+  --accent-cyan-glow: rgba(6, 182, 212, 0.3);
+
+  /* Redaction Texture */
+  --redact-bg: #090a0f;
+  --redact-pattern: repeating-linear-gradient(45deg, #181b24, #181b24 6px, #0f1219 6px, #0f1219 12px);
 }
 
 * {
@@ -41,15 +51,48 @@
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.05) 0%, transparent 40%);
+  background-attachment: fixed;
   color: var(--text-main);
   height: 100vh;
-  overflow: hidden; /* App container handles scrolling */
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+code, pre {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .dashboard-container {
   display: flex;
-  height: 100vh; /* Fallback */
+  height: 100vh;
   height: 100dvh;
   width: 100%;
   overflow: hidden;
@@ -67,11 +110,12 @@ body {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 .page-content {
   flex-grow: 1;
-  padding: 2rem;
+  padding: 1.75rem 2.25rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -80,22 +124,26 @@ body {
 @media (max-width: 768px) {
   .page-content {
     padding: 1rem;
-    padding-bottom: 3rem;
+    padding-bottom: 3.5rem;
   }
 }
 
-/* Common UI Elements */
+/* Glassmorphic Card */
 .card {
   background-color: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 1.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.28);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
 }
 
 .card:hover {
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: var(--border-color-hover);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.36);
 }
 
 .flex-between {
@@ -104,102 +152,105 @@ body {
   align-items: center;
 }
 
+/* Modern Badges */
 .badge {
-  padding: 0.25rem 0.75rem;
+  padding: 0.3rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
   letter-spacing: 0.02em;
+  transition: all 0.2s ease;
 }
 
 .badge.success {
-  background-color: rgba(16, 185, 129, 0.12);
-  color: var(--accent-success);
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .badge.primary {
-  background-color: rgba(59, 130, 246, 0.12);
-  color: var(--accent-primary);
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
   border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .badge.warning {
-  background-color: rgba(245, 158, 11, 0.12);
-  color: var(--accent-warning);
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .badge.danger {
-  background-color: rgba(239, 68, 68, 0.12);
-  color: var(--accent-danger);
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .badge.purple {
-  background-color: rgba(139, 92, 246, 0.12);
-  color: var(--accent-purple);
+  background: rgba(139, 92, 246, 0.12);
+  color: #a78bfa;
   border: 1px solid rgba(139, 92, 246, 0.3);
 }
 
 .badge.cyan {
-  background-color: rgba(6, 182, 212, 0.12);
-  color: var(--accent-cyan);
+  background: rgba(6, 182, 212, 0.12);
+  color: #22d3ee;
   border: 1px solid rgba(6, 182, 212, 0.3);
 }
 
 /* Risk Badges */
 .risk-low {
   background: rgba(16, 185, 129, 0.12);
-  color: var(--accent-success);
+  color: #34d399;
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .risk-medium {
   background: rgba(245, 158, 11, 0.12);
-  color: var(--accent-warning);
+  color: #fbbf24;
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .risk-high {
-  background: rgba(239, 68, 68, 0.12);
-  color: var(--accent-danger);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
 }
 
 /* Animations */
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
   100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
 }
 
 .processing-pulse {
-  animation: pulse 1.5s infinite;
+  animation: pulse 1.6s infinite;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Redaction */
+/* Redaction Block */
 .redacted-block {
   background: var(--redact-pattern);
   color: transparent !important;
   border-radius: 4px;
   user-select: none;
   display: inline-block;
-  min-height: 1.2em;
-  min-width: 80px;
-  border: 1px solid rgba(255,255,255,0.1);
+  min-height: 1.3em;
+  min-width: 90px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   position: relative;
   overflow: hidden;
   vertical-align: middle;
@@ -211,8 +262,8 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: rgba(255,255,255,0.85);
-  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
 }
