@@ -41,7 +41,7 @@ body {
   display: flex;
   height: 100vh; /* Fallback */
   height: 100dvh;
-  width: 100vw;
+  width: 100%;
   overflow: hidden;
 }
 
