@@ -44,6 +44,12 @@ body {
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+}
+
 .main-content {
   flex-grow: 1;
   display: flex;
@@ -56,6 +62,12 @@ body {
   flex-grow: 1;
   padding: 2rem;
   overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .page-content {
+    padding: 1rem;
+  }
 }
 
 /* Common UI Elements */
