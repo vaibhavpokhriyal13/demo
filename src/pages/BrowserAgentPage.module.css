@@ -201,6 +201,12 @@
   flex-grow: 1;
 }
 
+@media (max-width: 768px) {
+  .browserContent {
+    padding: 1rem;
+  }
+}
+
 .dataBox {
   background: #fff;
   border: 1px solid #e2e8f0;
