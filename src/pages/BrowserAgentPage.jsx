@@ -13,6 +13,19 @@ export default function BrowserAgentPage() {
     setLogs(prev => [...prev, { time, message, type }]);
   };
 
+  const triggerDummyDownload = () => {
+    const content = "This is a dummy Project Report downloaded during the PrivAgent Demo.\\n\\nIn a real scenario, the AI Agent would have triggered the actual download button on the page without ever seeing the redacted PII (Aadhaar, Phone number, etc).";
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Project_Report.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const runAgent = () => {
     if (agentState !== 'IDLE' && agentState !== 'COMPLETED') return;
     
@@ -58,6 +71,7 @@ export default function BrowserAgentPage() {
 
     setTimeout(() => {
       addLog('Download initiated', 'success');
+      triggerDummyDownload();
     }, 8500);
 
     setTimeout(() => {
