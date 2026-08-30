@@ -19,7 +19,14 @@ import {
   Copy,
   Check,
   MousePointer2,
-  Fingerprint
+  Fingerprint,
+  Building2,
+  ShieldCheck,
+  CreditCard,
+  Download,
+  Calendar,
+  MapPin,
+  FileSpreadsheet
 } from 'lucide-react';
 import styles from './BrowserAgentPage.module.css';
 
@@ -81,9 +88,9 @@ export default function BrowserAgentPage() {
       id: 'DETECT',
       name: 'Detect PII',
       phase: 'Element Categorization',
-      badge: '3 PII Detected',
+      badge: '4 PII Detected',
       status: 'pending',
-      details: 'On-device Regex & NLP marked Aadhaar, Phone Number, and Email.'
+      details: 'On-device Regex & NLP marked Aadhaar, Phone, PAN, and Bank Account.'
     },
     {
       id: 'FILTER',
@@ -99,7 +106,7 @@ export default function BrowserAgentPage() {
       phase: 'Action Synthesis',
       badge: 'Cloud LLM (Safe)',
       status: 'pending',
-      details: 'Synthesized target: CLICK(Download_Report_Button) using sanitized context.'
+      details: 'Synthesized target: CLICK(Project_Report_Q4_2026.pdf) using sanitized context.'
     },
     {
       id: 'RISK_CHECK',
@@ -179,7 +186,7 @@ export default function BrowserAgentPage() {
         setPerceptionMode('DOM_FIRST');
         setPerceptionTimeMs(12);
         updateTraceStep('OBSERVE', 'completed', 'Parsed DOM layout and accessibility tree in 12ms (DOM Fast-Path).');
-        addLog('Fast-Path Perception complete: 14 DOM nodes parsed in 12ms', 'success');
+        addLog('Fast-Path Perception complete: 18 DOM nodes parsed in 12ms', 'success');
       }
       setAgentState('DETECT');
     }, 800);
@@ -189,8 +196,8 @@ export default function BrowserAgentPage() {
       updateTraceStep('DETECT', 'active');
       addLog('Scanning for PII & sensitive entities with local token dictionary...', 'info');
       setTimeout(() => {
-        updateTraceStep('DETECT', 'completed', 'Detected 3 sensitive entities: Aadhaar (1), Phone (1), Email (1).');
-        addLog('Sensitive Element Detector tagged 3 PII items for redaction', 'warning');
+        updateTraceStep('DETECT', 'completed', 'Detected 4 sensitive entities: Aadhaar, Phone, PAN, Bank Account.');
+        addLog('Sensitive Element Detector tagged 4 PII items for redaction', 'warning');
         setAgentState('FILTER');
       }, 700);
     }, 1200);
@@ -211,8 +218,8 @@ export default function BrowserAgentPage() {
       updateTraceStep('REASON', 'active');
       addLog('Synthesizing action via Cloud Reasoner with sanitized metadata...', 'info');
       setTimeout(() => {
-        updateTraceStep('REASON', 'completed', 'Intent identified: CLICK(Project_Report.pdf download button).');
-        addLog('Action Proposal received: Intent: CLICK_ELEMENT | Target: [data-doc-id="report_2026"]', 'primary');
+        updateTraceStep('REASON', 'completed', 'Intent identified: CLICK(Project_Report_Q4_2026.pdf download button).');
+        addLog('Action Proposal received: Intent: CLICK_ELEMENT | Target: [data-doc-id="report_q4_2026"]', 'primary');
         setAgentState('RISK_CHECK');
       }, 800);
     }, 3200);
@@ -375,9 +382,9 @@ export default function BrowserAgentPage() {
         )}
       </div>
 
-      {/* 2-Column Clean Workspace */}
+      {/* 2-Column Responsive Workspace */}
       <div className={styles.mainWorkspace}>
-        {/* Left: Mock Browser Viewport */}
+        {/* Left: Authentic Government & Infrastructure Portal Viewport */}
         <div className={styles.browserColumn}>
           <div className={styles.browserFrame}>
             <div className={styles.browserFrameHeader}>
@@ -386,18 +393,20 @@ export default function BrowserAgentPage() {
               </div>
               <div className={styles.urlBar}>
                 <Lock size={11} color="#10b981" />
-                <span>https://gov.in/portal/infrastructure/reports</span>
+                <span>https://infra-portal.gov.in/projects/NHAI-2026-SC4/expenditure-reports</span>
               </div>
               <div className={styles.viewSwitchMini}>
                 <button 
                   className={`${styles.viewBtnMini} ${viewMode === 'sanitized' ? styles.viewActiveMini : ''}`}
                   onClick={() => setViewMode('sanitized')}
+                  title="Sanitized view: Safe token placeholders sent to Reasoner"
                 >
                   Sanitized View
                 </button>
                 <button 
                   className={`${styles.viewBtnMini} ${viewMode === 'raw' ? styles.viewActiveMini : ''}`}
                   onClick={() => setViewMode('raw')}
+                  title="Raw view: Live unredacted DOM"
                 >
                   Raw View
                 </button>
@@ -420,83 +429,145 @@ export default function BrowserAgentPage() {
                 </div>
               )}
 
-              {/* Web Page Header */}
-              <div className={styles.pageHeader}>
-                <div className={styles.pageHeaderTitle}>
-                  <h3>Infrastructure Project Management Portal</h3>
-                  <p>National Development &amp; Public Works Registry</p>
+              {/* Portal Header & Breadcrumbs */}
+              <div className={styles.portalTopNav}>
+                <div className={styles.portalBrand}>
+                  <div className={styles.govIcon}>🏛️</div>
+                  <div>
+                    <div className={styles.portalTitle}>National Infrastructure Development Authority</div>
+                    <div className={styles.portalSub}>Ministry of Road Transport &amp; Highways &bull; Govt of India</div>
+                  </div>
                 </div>
-                <div className={styles.govEmblem}>GOV.IN VERIFIED</div>
+                <div className={styles.portalBadge}>OFFICIAL PORTAL</div>
               </div>
 
-              {/* Sensitive Element Detector Live Container */}
+              <div className={styles.breadcrumbBar}>
+                <span>Home</span> &gt; <span>Projects</span> &gt; <span>Southern Corridor Pkg-IV</span> &gt; <strong>Reports &amp; Sanctions</strong>
+              </div>
+
+              {/* Project Hero Summary */}
+              <div className={styles.projectHeroCard}>
+                <div className={styles.projectHeroTop}>
+                  <div>
+                    <span className={styles.projectCode}>PROJECT ID: NHAI-2026-SC4-992</span>
+                    <h3 className={styles.projectName}>Bengaluru - Chennai Expressway (Package-IV)</h3>
+                  </div>
+                  <span className={styles.projectStatusBadge}>Active &bull; 84.2% Complete</span>
+                </div>
+
+                <div className={styles.projectMetaChips}>
+                  <div className={styles.metaChip}>
+                    <MapPin size={12} color="var(--accent-primary)" />
+                    <span>Sector: Highway &amp; Bridges</span>
+                  </div>
+                  <div className={styles.metaChip}>
+                    <CreditCard size={12} color="var(--accent-success)" />
+                    <span>Budget: ₹4,280.50 Cr</span>
+                  </div>
+                  <div className={styles.metaChip}>
+                    <Calendar size={12} color="var(--accent-warning)" />
+                    <span>Target Date: Dec 2026</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sensitive KYC & Personnel Redaction Container */}
               <div className={styles.detectorSection}>
                 <div className={styles.detectorSectionHeader}>
-                  <span className={styles.detectorTitle}>
-                    <Fingerprint size={14} color="var(--accent-primary)" />
-                    Project Metadata (Firewall Active)
-                  </span>
+                  <div className={styles.detectorTitle}>
+                    <Fingerprint size={15} color="var(--accent-primary)" />
+                    <div>
+                      <strong>Personnel &amp; Contractor KYC Record</strong>
+                      <span className={styles.detectorSub}>Confidential KYC Attributes &bull; Privacy Firewall Active</span>
+                    </div>
+                  </div>
                   <div className={styles.detectorBadgesList}>
-                    <span className="badge warning">■ Aadhaar Masked</span>
-                    <span className="badge warning">■ Phone Masked</span>
-                    <span className="badge warning">■ Email Masked</span>
+                    <span className="badge warning">■ Aadhaar</span>
+                    <span className="badge warning">■ Phone</span>
+                    <span className="badge warning">■ PAN</span>
+                    <span className="badge warning">■ Escrow Bank</span>
                   </div>
                 </div>
 
                 <div className={styles.dataFieldsGrid}>
                   <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <span className={styles.fieldLabel}>Manager Name</span>
-                    <span className={styles.fieldValAllowed}>Dr. Vikram S. (Director)</span>
+                    <span className={styles.fieldLabel}>Principal Director</span>
+                    <span className={styles.fieldValAllowed}>Dr. Rajeshwar Sharma (IAS)</span>
+                    <span className={styles.fieldRole}>Authorized Signatory</span>
                   </div>
 
                   <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <span className={styles.fieldLabel}>Aadhaar ID</span>
+                    <span className={styles.fieldLabel}>Director Aadhaar KYC</span>
                     {viewMode === 'sanitized' ? (
                       <span className="redacted-block">XXXX-XXXX-8921</span>
                     ) : (
                       <span className={styles.rawPii}>9842-1104-8921</span>
                     )}
-                    <span className={styles.tagPii}>PII</span>
+                    <span className={styles.tagPii}>AADHAAR</span>
                   </div>
 
                   <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <span className={styles.fieldLabel}>Phone Number</span>
+                    <span className={styles.fieldLabel}>Site Supervisor Contact</span>
                     {viewMode === 'sanitized' ? (
                       <span className="redacted-block">+91 9840X XXXXX</span>
                     ) : (
                       <span className={styles.rawPii}>+91 98401 23456</span>
                     )}
-                    <span className={styles.tagPii}>PII</span>
+                    <span className={styles.tagPii}>PHONE</span>
                   </div>
 
                   <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <span className={styles.fieldLabel}>Official Email</span>
+                    <span className={styles.fieldLabel}>Contractor PAN Card</span>
                     {viewMode === 'sanitized' ? (
-                      <span className="redacted-block">v***@isro.gov.in</span>
+                      <span className="redacted-block">ABCPSXXXXF</span>
                     ) : (
-                      <span className={styles.rawPii}>vikram.s@isro.gov.in</span>
+                      <span className={styles.rawPii}>ABCPS9182F</span>
                     )}
-                    <span className={styles.tagPii}>PII</span>
+                    <span className={styles.tagPii}>PAN</span>
+                  </div>
+
+                  <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
+                    <span className={styles.fieldLabel}>Escrow Bank Account</span>
+                    {viewMode === 'sanitized' ? (
+                      <span className="redacted-block">HDFC-0092-XXXX-4421</span>
+                    ) : (
+                      <span className={styles.rawPii}>HDFC-0092-1049-4421</span>
+                    )}
+                    <span className={styles.tagPii}>BANK_ACC</span>
+                  </div>
+
+                  <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
+                    <span className={styles.fieldLabel}>Official Audit Email</span>
+                    {viewMode === 'sanitized' ? (
+                      <span className="redacted-block">r***@morth.gov.in</span>
+                    ) : (
+                      <span className={styles.rawPii}>rajesh.s@morth.gov.in</span>
+                    )}
+                    <span className={styles.tagPii}>EMAIL</span>
                   </div>
                 </div>
               </div>
 
-              {/* Action Targets / Document List */}
+              {/* Reports & Document Repository (The Action Target) */}
               <div className={styles.actionSection}>
                 <div className={styles.actionHeader}>
                   <FileText size={15} color="var(--accent-primary)" />
-                  <h4>Available Documentation</h4>
+                  <h4>Sanctioned Project Documentation &amp; Audit Reports</h4>
                 </div>
 
                 <div className={styles.docListGrid}>
+                  {/* Primary Target Report */}
                   <div className={`${styles.docCard} ${agentState === 'EXECUTE' ? styles.docCardActive : ''}`}>
                     <div className={styles.docDetails}>
                       <div className={styles.docIconWrap}>
-                        <FileText size={17} color="var(--accent-primary)" />
+                        <FileText size={18} color="var(--accent-primary)" />
                       </div>
                       <div>
-                        <div className={styles.docTitle}>Project_Report_Q4_2026.pdf</div>
-                        <div className={styles.docMeta}>3.8 MB &bull; Verified Geospatial Survey Report</div>
+                        <div className={styles.docTitleRow}>
+                          <span className={styles.docTitle}>Project_Report_Q4_2026.pdf</span>
+                          <span className={styles.classificationBadge}>CONFIDENTIAL AUDIT</span>
+                        </div>
+                        <div className={styles.docMeta}>3.8 MB &bull; Q4 Consolidated Expenditure &amp; Physical Progress Report</div>
                       </div>
                     </div>
 
@@ -516,21 +587,45 @@ export default function BrowserAgentPage() {
                               Downloaded
                             </>
                           ) : (
-                            'Download Report'
+                            <>
+                              <Download size={13} />
+                              Download Report
+                            </>
                           )}
                         </button>
                       )}
                     </div>
                   </div>
 
+                  {/* Secondary Report */}
                   <div className={styles.docCard}>
                     <div className={styles.docDetails}>
                       <div className={styles.docIconWrap}>
-                        <FileText size={17} color="var(--text-muted)" />
+                        <FileSpreadsheet size={18} color="var(--accent-success)" />
                       </div>
                       <div>
-                        <div className={styles.docTitle}>Environmental_Clearance_2026.pdf</div>
-                        <div className={styles.docMeta}>1.2 MB &bull; Public Works NOC &amp; Registry</div>
+                        <div className={styles.docTitleRow}>
+                          <span className={styles.docTitle}>Contractor_Escrow_Disbursements_2026.xlsx</span>
+                          <span className={styles.publicBadge}>FINANCIAL LEDGER</span>
+                        </div>
+                        <div className={styles.docMeta}>1.4 MB &bull; Stage-3 Verified Contractor Invoice Schedule</div>
+                      </div>
+                    </div>
+                    <button className={styles.actionDownloadBtnSecondary}>View Summary</button>
+                  </div>
+
+                  {/* Third Report */}
+                  <div className={styles.docCard}>
+                    <div className={styles.docDetails}>
+                      <div className={styles.docIconWrap}>
+                        <FileText size={18} color="var(--text-muted)" />
+                      </div>
+                      <div>
+                        <div className={styles.docTitleRow}>
+                          <span className={styles.docTitle}>Environmental_Clearance_NOC_MoEFCC.pdf</span>
+                          <span className={styles.publicBadge}>PUBLIC RECORD</span>
+                        </div>
+                        <div className={styles.docMeta}>2.1 MB &bull; Forest &amp; Eco-sensitive Zone Statutory Approval</div>
                       </div>
                     </div>
                     <button className={styles.actionDownloadBtnSecondary}>View Summary</button>
@@ -661,11 +756,11 @@ export default function BrowserAgentPage() {
                     <div className={styles.budgetBreakdownRow}>
                       <div>
                         <span className={styles.subText}>Entities Masked</span>
-                        <strong>3 Items</strong>
+                        <strong>4 Items</strong>
                       </div>
                       <div>
                         <span className={styles.subText}>DOM Nodes Cleaned</span>
-                        <strong>14 Nodes</strong>
+                        <strong>18 Nodes</strong>
                       </div>
                       <div>
                         <span className={styles.subText}>Payload Epsilon</span>
