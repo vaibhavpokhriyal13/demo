@@ -77,15 +77,15 @@ export default function Sidebar({ activeTab, setActiveTab, theme, toggleTheme })
       <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.logoContainer}>
           <div className={styles.logoEmblem}>
-            <Shield size={22} color="#fff" />
+            <Rocket size={20} color="#ffffff" />
             <div className={styles.emblemGlow}></div>
           </div>
           <div className={styles.logoInfo}>
             <div className={styles.brandRow}>
               <h1 className={styles.logoText}>PrivAgent</h1>
-              <span className={styles.versionPill}>v2.6</span>
+              <span className={styles.versionPill}>SIH 2026</span>
             </div>
-            <p className={styles.logoSubtext}>ISRO / DOS Visual Perception AI</p>
+            <p className={styles.logoSubtext}>Bharatiya Antariksh Hackathon</p>
           </div>
           <button className={styles.closeBtn} onClick={() => setIsOpen(false)} aria-label="Close Navigation">
             <X size={18} color="var(--text-main)" />
