@@ -119,7 +119,7 @@ export default function Sidebar({ activeTab, setActiveTab, theme, toggleTheme })
         </nav>
         
         <div className={styles.footer}>
-          {/* 3-Way Theme Switcher in Footer */}
+          {/* 3-Way Theme Switcher */}
           <button 
             className={styles.themeToggleBar} 
             onClick={toggleTheme}
@@ -138,20 +138,9 @@ export default function Sidebar({ activeTab, setActiveTab, theme, toggleTheme })
             </div>
           </button>
 
-          <div className={styles.sihBadge}>
-            <div className={styles.sihTagRow}>
-              <Sparkles size={11} color="var(--accent-primary)" />
-              <span className={styles.sihTag}>ISRO &bull; PS SIH26171</span>
-            </div>
-            <span className={styles.sihSub}>On-Device Perception &amp; Redaction</span>
-          </div>
-
-          <div className={styles.statusBox}>
-            <div className={styles.statusDot}></div>
-            <div className={styles.statusTexts}>
-              <span className={styles.statusOnline}>WASM / ONNX Engine</span>
-              <span className={styles.statusFps}>WebGPU Accelerated</span>
-            </div>
+          <div className={styles.sidebarSubtleStatus}>
+            <span className={styles.onlineDot}></span>
+            <span>WebGPU Engine &bull; SIH26171</span>
           </div>
         </div>
       </aside>

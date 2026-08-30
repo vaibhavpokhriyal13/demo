@@ -1,460 +1,294 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
+  Globe,
   Play,
-  ShieldCheck,
   Zap,
-  MousePointer2,
-  FileDown,
-  Eye,
-  Layers,
-  Database,
+  CheckCircle2,
+  AlertTriangle,
   RefreshCw,
-  SlidersHorizontal,
+  Sliders,
+  Sparkles,
+  Lock,
+  Eye,
+  FileText,
+  Search,
   ChevronDown,
   ChevronUp,
-  Fingerprint,
-  FileText,
-  Lock,
   Cpu,
-  Sparkles,
+  Layers,
   Copy,
   Check,
-  Search,
-  Terminal,
-  Activity,
-  Sliders
+  MousePointer2,
+  Fingerprint
 } from 'lucide-react';
 import styles from './BrowserAgentPage.module.css';
 
 export default function BrowserAgentPage() {
-  // Preset Demo Scenarios
+  const [task, setTask] = useState('Find the project report and download it');
+  const [agentState, setAgentState] = useState('IDLE'); // IDLE, OBSERVE, DETECT, FILTER, REASON, RISK_CHECK, EXECUTE, COMPLETED
+  const [activeTab, setActiveTab] = useState('trace'); // trace, privacy, logs
+  const [privacyMode, setPrivacyMode] = useState('balanced');
+  const [perceptionMode, setPerceptionMode] = useState('DOM_FIRST'); // DOM_FIRST or VISION_FALLBACK
+  const [perceptionTimeMs, setPerceptionTimeMs] = useState(12);
+  const [simulateCanvasTarget, setSimulateCanvasTarget] = useState(false);
+  const [simulateSelfCorrection, setSimulateSelfCorrection] = useState(false);
+  const [correctionAttempts, setCorrectionAttempts] = useState(0);
+  const [showAdvancedControls, setShowAdvancedControls] = useState(false);
+  const [copiedTrace, setCopiedTrace] = useState(false);
+  const [viewMode, setViewMode] = useState('sanitized'); // sanitized or raw
+  const [highlightPii, setHighlightPii] = useState(true);
+
+  // Scenario Presets
+  const [activeScenario, setActiveScenario] = useState('report');
   const scenarios = [
     {
       id: 'report',
       title: 'Annual Project Report',
-      task: 'Find the project report and download it',
+      taskText: 'Find the project report and download it',
       canvas: false,
-      risk: { tier: 'MEDIUM', score: 0.42, reason: 'Verified Gov.in PDF download' },
-      piiCount: 3,
-      confidence: 96
+      selfCorrect: false,
+      mode: 'balanced'
     },
     {
-      id: 'finance',
+      id: 'audit',
       title: 'Financial Audit Export',
-      task: 'Export Q4 Financial Expenditure and balance sheet',
+      taskText: 'Export quarterly financial audit statement with self-healing retry',
       canvas: false,
-      risk: { tier: 'MEDIUM', score: 0.48, reason: 'Financial tabular data export' },
-      piiCount: 4,
-      confidence: 93
+      selfCorrect: true,
+      mode: 'strict'
     },
     {
       id: 'canvas',
       title: 'Canvas Control (Vision)',
-      task: 'Locate visual action button on graphical canvas',
+      taskText: 'Locate submit button on custom canvas map',
       canvas: true,
-      risk: { tier: 'LOW', score: 0.18, reason: 'Visual map coordinate inspection' },
-      piiCount: 2,
-      confidence: 88
+      selfCorrect: false,
+      mode: 'balanced'
     }
   ];
 
-  const [activeScenario, setActiveScenario] = useState('report');
-  const [task, setTask] = useState(scenarios[0].task);
-  const [agentState, setAgentState] = useState('IDLE'); // IDLE, OBSERVE, DETECT, FILTER, REASON, VALIDATE, EXECUTE, COMPLETED
-  const [sanitizedView, setSanitizedView] = useState(true);
-  const [highlightSensitives, setHighlightSensitives] = useState(true);
-  const [simulateSelfCorrection, setSimulateSelfCorrection] = useState(false);
-  const [simulateCanvasTarget, setSimulateCanvasTarget] = useState(false);
-  const [copiedTrace, setCopiedTrace] = useState(false);
-  const [showAdvancedControls, setShowAdvancedControls] = useState(false);
-  const [activeInspectorTab, setActiveInspectorTab] = useState('trace'); // 'trace', 'security', 'logs'
-  
-  // Privacy Firewall & Privacy Budget
-  const [privacyMode, setPrivacyMode] = useState('balanced'); // strict, balanced, automation
-  const [privacyBudget, setPrivacyBudget] = useState({
-    totalBytesCaptured: 1680,
-    bytesTransmitted: 142,
-    percentProtected: 91.5,
-    sensitiveBlocked: 3,
-    allowedTokens: 11
-  });
-
-  // Adaptive Perception
-  const [perceptionMode, setPerceptionMode] = useState('DOM_FIRST'); // DOM_FIRST, VISION_ONNX
-  const [perceptionTimeMs, setPerceptionTimeMs] = useState(14);
-
-  // Action Risk Engine
-  const [actionRisk, setActionRisk] = useState({
-    tier: 'MEDIUM',
-    score: 0.42,
-    reason: 'File Download from verified domain (Gov Portal)',
-    autoVerified: true
-  });
-
-  // Confidence-Aware Agent
-  const [confidenceScore, setConfidenceScore] = useState(96);
-  const [ambiguityLevel, setAmbiguityLevel] = useState('LOW');
-
-  // Explainable Action Trace
-  const [traceSteps, setTraceSteps] = useState([
+  // Pipeline execution trace state
+  const [executionTrace, setExecutionTrace] = useState([
     {
       id: 'OBSERVE',
-      num: 1,
-      label: 'Observe UI',
-      desc: 'DOM & Accessibility Tree parsed: 14 interactive nodes, 3 containers',
-      status: 'idle',
+      name: 'Observe UI',
+      phase: 'DOM First Perception',
       badge: 'DOM / a11y',
-      expanded: false
+      status: 'pending',
+      details: 'Extracted semantic DOM tree and computed accessibility nodes (12ms).'
     },
     {
       id: 'DETECT',
-      num: 2,
-      label: 'Detect PII',
-      desc: 'Local regex & ONNX detected 3 PII entities: Aadhaar, Phone, Email',
-      status: 'idle',
+      name: 'Detect PII',
+      phase: 'Element Categorization',
       badge: '3 PII Detected',
-      expanded: false
+      status: 'pending',
+      details: 'On-device Regex & NLP marked Aadhaar, Phone Number, and Email.'
     },
     {
       id: 'FILTER',
-      num: 3,
-      label: 'Privacy Firewall',
-      desc: 'Firewall Policy: Balanced. Redacted PII locally. 0 confidential tokens leaked',
-      status: 'idle',
+      name: 'Privacy Firewall',
+      phase: 'Token Replacement',
       badge: '0 PII Transmitted',
-      expanded: false
+      status: 'pending',
+      details: 'Replaced sensitive text with cryptographic placeholder tokens locally.'
     },
     {
       id: 'REASON',
-      num: 4,
-      label: 'Hybrid Reasoner',
-      desc: 'Cloud LLM Reasoner mapped goal -> CLICK(Project_Report.pdf) with sanitized context',
-      status: 'idle',
+      name: 'Hybrid Reasoner',
+      phase: 'Action Synthesis',
       badge: 'Cloud LLM (Safe)',
-      expanded: false
+      status: 'pending',
+      details: 'Synthesized target: CLICK(Download_Report_Button) using sanitized context.'
     },
     {
-      id: 'VALIDATE',
-      num: 5,
-      label: 'Risk & Confidence',
-      desc: 'Risk: 0.42 (Medium) | Confidence: 96% (>90% threshold for direct execute)',
-      status: 'idle',
+      id: 'RISK_CHECK',
+      name: 'Risk & Confidence',
+      phase: 'Safety Gate',
       badge: 'Risk: Med | Conf: 96%',
-      expanded: false
+      status: 'pending',
+      details: 'Calculated Risk Tier: Medium (0.42) | Confidence: 96% (> 90% threshold).'
     },
     {
       id: 'EXECUTE',
-      num: 6,
-      label: 'Execute & Verify',
-      desc: 'Dispatched native DOM click event on #download-btn-1. Verified state 200 OK',
-      status: 'idle',
+      name: 'Execute & Verify',
+      phase: 'DOM Event Dispatch',
       badge: 'Verified Success',
-      expanded: false
+      status: 'pending',
+      details: 'Dispatched native DOM click. Verified state change (HTTP 200 OK).'
     }
   ]);
 
-  // Self-Correction Loop State
-  const [correctionAttempts, setCorrectionAttempts] = useState(0);
-
-  // Intelligent Local/Cloud Routing State
-  const [routingStats, setRoutingStats] = useState({
-    localPerceptionDuration: '14ms',
-    cloudReasoningDuration: '280ms',
-    contextMinimizedPercent: '91.5%'
-  });
-
-  // Task Memory
-  const [taskMemory] = useState([
-    { key: 'Preferred File Format', value: 'PDF Document (.pdf)' },
-    { key: 'Target Save Location', value: '/Reports/2026/' },
-    { key: 'Verified Safe Domains', value: 'https://gov.in/*' }
+  // Live Terminal Logs
+  const [logs, setLogs] = useState([
+    { time: '00:00.01', type: 'info', text: 'PrivAgent Perception Engine initialized (WebGPU & WASM ready)' },
+    { time: '00:00.04', type: 'info', text: 'Privacy Policy active: BALANCED (High-confidence masking)' },
+    { time: '00:00.06', type: 'info', text: 'Pre-flight check: Target selector valid (0 exposed entities)' },
   ]);
 
-  const [logs, setLogs] = useState([]);
-  
-  const addLog = (message, type = 'info') => {
-    const time = new Date().toLocaleTimeString([], { hour12: false });
-    setLogs(prev => [...prev, { time, message, type }]);
+  const addLog = (text, type = 'info') => {
+    const now = new Date();
+    const timeStr = `${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}.${String(Math.floor(now.getMilliseconds() / 10)).padStart(2, '0')}`;
+    setLogs(prev => [...prev, { time: timeStr, type, text }]);
   };
 
   const handleSelectScenario = (sc) => {
-    if (agentState !== 'IDLE' && agentState !== 'COMPLETED') return;
     setActiveScenario(sc.id);
-    setTask(sc.task);
+    setTask(sc.taskText);
     setSimulateCanvasTarget(sc.canvas);
-    setActionRisk({
-      tier: sc.risk.tier,
-      score: sc.risk.score,
-      reason: sc.risk.reason,
-      autoVerified: true
-    });
-    setConfidenceScore(sc.confidence);
-    setAmbiguityLevel(sc.confidence > 90 ? 'LOW' : 'MEDIUM');
+    setSimulateSelfCorrection(sc.selfCorrect);
+    setPrivacyMode(sc.mode);
+    setPerceptionMode(sc.canvas ? 'VISION_FALLBACK' : 'DOM_FIRST');
+    setPerceptionTimeMs(sc.canvas ? 38 : 12);
   };
 
-  const updateTraceStep = (stepId, status, customDetail = null) => {
-    setTraceSteps(prev => prev.map(s => {
-      if (s.id === stepId) {
-        return {
-          ...s,
-          status,
-          ...(customDetail ? { desc: customDetail } : {})
-        };
-      }
-      return s;
-    }));
+  const updateTraceStep = (stepId, status, newDetails = null) => {
+    setExecutionTrace(prev =>
+      prev.map(step => {
+        if (step.id === stepId) {
+          return {
+            ...step,
+            status,
+            details: newDetails || step.details
+          };
+        }
+        return step;
+      })
+    );
   };
 
-  const toggleTraceExpand = (stepId) => {
-    setTraceSteps(prev => prev.map(s => s.id === stepId ? { ...s, expanded: !s.expanded } : s));
-  };
-
-  const copyTraceJson = () => {
-    const payload = JSON.stringify({
-      task,
-      privacyMode,
-      perceptionMode,
-      confidenceScore,
-      actionRisk,
-      traceSteps,
-      routingStats,
-      timestamp: new Date().toISOString()
-    }, null, 2);
-    navigator.clipboard.writeText(payload);
-    setCopiedTrace(true);
-    setTimeout(() => setCopiedTrace(false), 2000);
-  };
-
-  const triggerDummyDownload = () => {
-    const content = `=== SIH26171 PRIVAGENT VERIFIED DOWNLOAD ===\n\nTask: ${task}\nStatus: Verified Execution\nPrivacy Mode: ${privacyMode.toUpperCase()}\nPrivacy Budget Saved: ${privacyBudget.percentProtected}%\nPerception Mode: ${perceptionMode}\nConfidence Score: ${confidenceScore}%\nRisk Score: ${actionRisk.score}\n\nAll personal identifiers (Aadhaar, Phone, Email) were intercepted and masked locally before cloud reasoning.`;
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Project_Report.pdf';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const resetPipeline = () => {
+    setExecutionTrace(prev => prev.map(s => ({ ...s, status: 'pending' })));
+    setCorrectionAttempts(0);
   };
 
   const runAgent = () => {
-    if (agentState !== 'IDLE' && agentState !== 'COMPLETED') return;
-    
-    setLogs([]);
-    setCorrectionAttempts(0);
-    setTraceSteps(prev => prev.map(s => ({ ...s, status: 'pending' })));
-
-    // Switch to trace tab automatically so the user sees live execution
-    setActiveInspectorTab('trace');
-
-    // STEP 1: Adaptive Perception (DOM vs Local Vision)
+    resetPipeline();
     setAgentState('OBSERVE');
     addLog(`Task initiated: "${task}"`, 'primary');
-    
-    if (simulateCanvasTarget) {
-      setPerceptionMode('VISION_ONNX');
-      setPerceptionTimeMs(38);
-      addLog('Adaptive Perception: Canvas / Visual element detected -> Invoking Local Vision (ONNX Runtime Web)', 'warning');
-      updateTraceStep('OBSERVE', 'active', 'Visual-only canvas detected. Local Vision ONNX (WebGPU/WASM) computed bounding boxes in 38ms');
-    } else {
-      setPerceptionMode('DOM_FIRST');
-      setPerceptionTimeMs(12);
-      addLog('Adaptive Perception: DOM/a11y First (Fast-Path structural extraction in 12ms)', 'info');
-      updateTraceStep('OBSERVE', 'active', 'DOM & Accessibility Tree parsed: 14 interactive nodes, 3 data containers');
-    }
 
+    // Stage 1: OBSERVE
+    updateTraceStep('OBSERVE', 'active');
     setTimeout(() => {
-      updateTraceStep('OBSERVE', 'completed');
-      
-      // STEP 2: Sensitive Element Detector
-      setAgentState('DETECT');
-      addLog('Sensitive Element Detector: Scanning for PII entities...', 'warning');
-      updateTraceStep('DETECT', 'active');
-      addLog('Detected: [Aadhaar: 4321-8765-1098] | [Phone: 9876543210] | [Email: vaibhav@example.com]', 'warning');
-    }, 1100);
-
-    // STEP 3: Privacy Firewall & Privacy Budget
-    setTimeout(() => {
-      updateTraceStep('DETECT', 'completed');
-      setAgentState('FILTER');
-      addLog(`Privacy Firewall [Mode: ${privacyMode.toUpperCase()}]: Enforcing local masking...`, 'primary');
-      updateTraceStep('FILTER', 'active');
-      
-      if (privacyMode === 'strict') {
-        setPrivacyBudget({
-          totalBytesCaptured: 1680,
-          bytesTransmitted: 94,
-          percentProtected: 94.4,
-          sensitiveBlocked: 3,
-          allowedTokens: 7
-        });
+      if (simulateCanvasTarget) {
+        setPerceptionMode('VISION_FALLBACK');
+        setPerceptionTimeMs(38);
+        updateTraceStep('OBSERVE', 'completed', 'DOM failed (unstructured canvas). Fallback: Local Vision ONNX WebGPU (38ms).');
+        addLog('DOM node was unstructured <canvas>. Invoked Local Vision ONNX WebGPU (38ms)', 'warning');
       } else {
-        setPrivacyBudget({
-          totalBytesCaptured: 1680,
-          bytesTransmitted: 142,
-          percentProtected: 91.5,
-          sensitiveBlocked: 3,
-          allowedTokens: 11
-        });
+        setPerceptionMode('DOM_FIRST');
+        setPerceptionTimeMs(12);
+        updateTraceStep('OBSERVE', 'completed', 'Parsed DOM layout and accessibility tree in 12ms (DOM Fast-Path).');
+        addLog('Fast-Path Perception complete: 14 DOM nodes parsed in 12ms', 'success');
       }
-      setSanitizedView(true);
-      addLog('Privacy Firewall: Zero PII permitted across boundary. 91.5% context minimized.', 'success');
+      setAgentState('DETECT');
+    }, 800);
+
+    // Stage 2: DETECT
+    setTimeout(() => {
+      updateTraceStep('DETECT', 'active');
+      addLog('Scanning for PII & sensitive entities with local token dictionary...', 'info');
+      setTimeout(() => {
+        updateTraceStep('DETECT', 'completed', 'Detected 3 sensitive entities: Aadhaar (1), Phone (1), Email (1).');
+        addLog('Sensitive Element Detector tagged 3 PII items for redaction', 'warning');
+        setAgentState('FILTER');
+      }, 700);
+    }, 1200);
+
+    // Stage 3: FILTER (Privacy Firewall)
+    setTimeout(() => {
+      updateTraceStep('FILTER', 'active');
+      addLog(`Applying Privacy Firewall ruleset: [${privacyMode.toUpperCase()}]`, 'info');
+      setTimeout(() => {
+        updateTraceStep('FILTER', 'completed', 'Masked sensitive fields with placeholder tokens. Cloud transmission contains ZERO raw PII.');
+        addLog('Local Redaction Firewall applied: 100% PII blocked from network payload', 'success');
+        setAgentState('REASON');
+      }, 700);
     }, 2200);
 
-    // STEP 4: Intelligent Local/Cloud Routing
+    // Stage 4: REASON
     setTimeout(() => {
-      updateTraceStep('FILTER', 'completed');
-      setAgentState('REASON');
-      addLog('Intelligent Router: Dispatching sanitized structured tokens to LLM...', 'info');
       updateTraceStep('REASON', 'active');
-      
-      setRoutingStats({
-        localPerceptionDuration: `${perceptionTimeMs}ms`,
-        cloudReasoningDuration: '280ms',
-        contextMinimizedPercent: '91.5%'
-      });
-      addLog('LLM Reasoning output: Proposed CLICK(#download-report-btn)', 'primary');
-    }, 3400);
+      addLog('Synthesizing action via Cloud Reasoner with sanitized metadata...', 'info');
+      setTimeout(() => {
+        updateTraceStep('REASON', 'completed', 'Intent identified: CLICK(Project_Report.pdf download button).');
+        addLog('Action Proposal received: Intent: CLICK_ELEMENT | Target: [data-doc-id="report_2026"]', 'primary');
+        setAgentState('RISK_CHECK');
+      }, 800);
+    }, 3200);
 
-    // STEP 5: Action Risk & Permission Engine + Confidence Scoring
+    // Stage 5: RISK_CHECK
     setTimeout(() => {
-      updateTraceStep('REASON', 'completed');
-      setAgentState('VALIDATE');
-      
-      const calculatedConf = simulateCanvasTarget ? 88 : 96;
-      setConfidenceScore(calculatedConf);
-      setAmbiguityLevel(calculatedConf > 90 ? 'LOW' : 'MEDIUM');
-
-      setActionRisk({
-        tier: 'MEDIUM',
-        score: 0.42,
-        reason: 'File Download (Safe domain: gov.in)',
-        autoVerified: true
-      });
-
-      addLog(`Confidence-Aware Agent: Confidence = ${calculatedConf}% (>90% Auto-Execute)`, 'success');
-      addLog('Action Risk Engine: Evaluated CLICK(Download) -> Risk: MEDIUM (0.42) - Pre-validated', 'success');
-      updateTraceStep('VALIDATE', 'active');
-    }, 4500);
-
-    // STEP 6: Self-Correction Loop / Execution
-    setTimeout(() => {
-      updateTraceStep('VALIDATE', 'completed');
-      
-      if (simulateSelfCorrection) {
+      updateTraceStep('RISK_CHECK', 'active');
+      addLog('Evaluating Risk Engine score and perception confidence...', 'info');
+      setTimeout(() => {
+        updateTraceStep('RISK_CHECK', 'completed', 'Risk Score: 0.42 (Medium) | Confidence: 96% (>90% threshold) -> Approved.');
+        addLog('Risk Engine: Medium Risk (0.42) | Confidence: 96% | Action Gate: APPROVED', 'success');
         setAgentState('EXECUTE');
-        setCorrectionAttempts(1);
-        addLog('Self-Correction Loop: Initial target selector stale / intercepted!', 'warning');
-        addLog('Re-perceiving local DOM state and selecting alternative selector...', 'warning');
+      }, 700);
+    }, 4300);
 
+    // Stage 6: EXECUTE (with optional self-correction)
+    setTimeout(() => {
+      updateTraceStep('EXECUTE', 'active');
+      if (simulateSelfCorrection && correctionAttempts === 0) {
+        addLog('Executing initial selector click...', 'info');
         setTimeout(() => {
-          setCorrectionAttempts(2);
-          addLog('Self-Correction: Alternate selector resolved (#btn-download-primary). Verified state match.', 'success');
-          updateTraceStep('EXECUTE', 'active', 'Self-corrected selector (#btn-download-primary). Verified state change: 200 OK');
-          
+          addLog('State Verification: Element obstructed by modal popup! Triggering Self-Correction...', 'warning');
+          setCorrectionAttempts(1);
+          updateTraceStep('EXECUTE', 'active', 'Self-Correction Loop: Re-perceiving active DOM, dismissing modal, clicking target.');
           setTimeout(() => {
-            triggerDummyDownload();
+            addLog('Self-Correction Success: Modal bypassed, target selector clicked successfully.', 'success');
             setAgentState('COMPLETED');
             updateTraceStep('EXECUTE', 'completed');
-            addLog('Task Completed Successfully with verified trace', 'success');
-          }, 1100);
-        }, 1300);
+            addLog('Task Completed Successfully (Self-Corrected)', 'success');
+          }, 1200);
+        }, 800);
       } else {
-        setAgentState('EXECUTE');
-        updateTraceStep('EXECUTE', 'active');
-        addLog('Local Executor: Triggering action on verified element...', 'primary');
-        
+        addLog('Dispatched native DOM click event to target selector', 'info');
         setTimeout(() => {
-          triggerDummyDownload();
           setAgentState('COMPLETED');
           updateTraceStep('EXECUTE', 'completed');
           addLog('Task Completed Successfully with verified trace', 'success');
-        }, 1100);
+        }, 900);
       }
-    }, 5600);
+    }, 5300);
   };
 
   const isRunning = agentState !== 'IDLE' && agentState !== 'COMPLETED';
 
+  const handleCopyTrace = () => {
+    navigator.clipboard.writeText(JSON.stringify(executionTrace, null, 2));
+    setCopiedTrace(true);
+    setTimeout(() => setCopiedTrace(false), 2000);
+  };
+
   return (
     <div className={styles.container}>
-      {/* Top Header Bar */}
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <div className={styles.titleRow}>
-            <h2 className={styles.title}>AI Browser Agent</h2>
-            <span className="badge primary">SIH26171 Sandbox</span>
-          </div>
-          <p className={styles.subtitle}>
-            On-device visual perception &bull; Local PII firewall &bull; Risk validation &bull; Explainable action trace
-          </p>
-        </div>
-
-        {/* Header Telemetry Badges */}
-        <div className={styles.headerBadges}>
-          <div className={`${styles.statusChip} ${isRunning ? styles.statusPulse : ''}`}>
-            <span className={styles.chipDot}></span>
-            <span>Pipeline: <strong>{agentState === 'IDLE' ? 'STANDBY' : agentState}</strong></span>
-          </div>
-
-          <div className={styles.perceptionChip}>
-            {perceptionMode === 'DOM_FIRST' ? (
-              <span className="badge success">
-                <Zap size={12} /> Fast-Path ({perceptionTimeMs}ms)
-              </span>
-            ) : (
-              <span className="badge warning">
-                <Eye size={12} /> ONNX Vision ({perceptionTimeMs}ms)
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Unified Command & Scenario Bar */}
-      <div className={`card ${styles.commandHubCard}`}>
-        {/* Preset scenario selection pills */}
-        <div className={styles.presetSection}>
-          <span className={styles.presetLabel}>PRESETS:</span>
-          <div className={styles.presetChips}>
-            {scenarios.map((sc) => (
-              <button
-                key={sc.id}
-                className={`${styles.presetBtn} ${activeScenario === sc.id ? styles.presetActive : ''}`}
-                onClick={() => handleSelectScenario(sc)}
-                disabled={isRunning}
-              >
-                <Sparkles size={12} />
-                <span>{sc.title}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Main Input Row */}
+      {/* Clean Unified Command Hero Bar */}
+      <div className={`card ${styles.commandHeroCard}`}>
         <div className={styles.commandInputRow}>
           <div className={styles.inputBox}>
-            <Search size={16} className={styles.searchIcon} />
+            <Search size={17} className={styles.searchIcon} />
             <input 
               type="text" 
               className={styles.taskInput}
               value={task} 
               onChange={(e) => setTask(e.target.value)}
               disabled={isRunning}
-              placeholder="Enter instructions (e.g. Find project report and download it)"
+              placeholder="What should the AI browser agent do?"
             />
           </div>
 
           <div className={styles.commandActions}>
             <button 
-              className={styles.optionsToggleBtn}
+              className={styles.configBtn}
               onClick={() => setShowAdvancedControls(!showAdvancedControls)}
-              title="Configure Privacy Mode & Simulation Switches"
+              title="Configure Privacy Rules & Self-Correction"
             >
-              <Sliders size={15} />
-              <span>Config</span>
-              {showAdvancedControls ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+              <Sliders size={14} />
+              <span>Options</span>
+              {showAdvancedControls ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             </button>
 
             <button 
@@ -464,32 +298,47 @@ export default function BrowserAgentPage() {
             >
               {isRunning ? (
                 <>
-                  <Zap className="processing-pulse" size={16} />
+                  <Zap className="processing-pulse" size={15} />
                   Running...
                 </>
               ) : (
                 <>
-                  <Play size={16} fill="currentColor" />
-                  Execute Agent
+                  <Play size={15} fill="currentColor" />
+                  Run Agent
                 </>
               )}
             </button>
           </div>
         </div>
 
-        {/* Collapsible Advanced Config Drawer */}
+        {/* Preset Chips Row */}
+        <div className={styles.presetChipsRow}>
+          <span className={styles.presetTag}>Quick Scenarios:</span>
+          {scenarios.map((sc) => (
+            <button
+              key={sc.id}
+              className={`${styles.presetChip} ${activeScenario === sc.id ? styles.presetChipActive : ''}`}
+              onClick={() => handleSelectScenario(sc)}
+              disabled={isRunning}
+            >
+              <Sparkles size={11} />
+              <span>{sc.title}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Collapsible Options Drawer */}
         {showAdvancedControls && (
           <div className={`${styles.advancedConfigDrawer} fade-in`}>
-            {/* Privacy Mode Switcher */}
             <div className={styles.drawerGroup}>
-              <span className={styles.drawerGroupLabel}>
-                <Lock size={13} color="var(--accent-primary)" /> Privacy Firewall:
+              <span className={styles.drawerLabel}>
+                <Lock size={12} color="var(--accent-primary)" /> Privacy Policy:
               </span>
-              <div className={styles.pillGroup}>
+              <div className={styles.pillSwitch}>
                 {['strict', 'balanced', 'automation'].map((mode) => (
                   <button
                     key={mode}
-                    className={`${styles.pillBtn} ${privacyMode === mode ? styles.activePill : ''}`}
+                    className={`${styles.pillOption} ${privacyMode === mode ? styles.activePillOption : ''}`}
                     onClick={() => setPrivacyMode(mode)}
                     disabled={isRunning}
                   >
@@ -499,9 +348,6 @@ export default function BrowserAgentPage() {
               </div>
             </div>
 
-            <div className={styles.drawerDivider}></div>
-
-            {/* Interactive Simulation Switches */}
             <div className={styles.drawerToggles}>
               <label className={styles.toggleItem}>
                 <input 
@@ -511,7 +357,7 @@ export default function BrowserAgentPage() {
                   disabled={isRunning}
                 />
                 <RefreshCw size={12} />
-                <span>Simulate Self-Correction</span>
+                <span>Self-Correction Retry</span>
               </label>
 
               <label className={styles.toggleItem}>
@@ -522,81 +368,40 @@ export default function BrowserAgentPage() {
                   disabled={isRunning}
                 />
                 <Eye size={12} />
-                <span>Simulate Canvas/Visual Target</span>
+                <span>Simulate Canvas Fallback</span>
               </label>
             </div>
           </div>
         )}
       </div>
 
-      {/* Sleek Horizontal Stepper Pipeline */}
-      <div className={styles.stepperContainer}>
-        {traceSteps.map((st, i) => {
-          const isDone = st.status === 'completed';
-          const isActive = st.status === 'active';
-          return (
-            <React.Fragment key={st.id}>
-              <div className={`${styles.stepperItem} ${isActive ? styles.stepActive : ''} ${isDone ? styles.stepDone : ''}`}>
-                <div className={styles.stepCircle}>
-                  {isDone ? <Check size={12} /> : <span>{st.num}</span>}
-                </div>
-                <div className={styles.stepInfo}>
-                  <span className={styles.stepName}>{st.label}</span>
-                  <span className={styles.stepSubBadge}>{st.badge}</span>
-                </div>
-              </div>
-              {i < traceSteps.length - 1 && <div className={`${styles.stepLine} ${isDone ? styles.stepLineDone : ''}`}></div>}
-            </React.Fragment>
-          );
-        })}
-      </div>
-
-      {/* Main Segregated 2-Column Responsive Workspace */}
+      {/* 2-Column Clean Workspace */}
       <div className={styles.mainWorkspace}>
-        {/* Left Column: Simulated Browser Window */}
+        {/* Left: Mock Browser Viewport */}
         <div className={styles.browserColumn}>
-          {/* Browser Controls & View Mode */}
-          <div className={styles.browserToolbar}>
-            <div className={styles.viewToggleGroup}>
-              <button 
-                className={`${styles.viewBtn} ${sanitizedView ? styles.viewBtnActive : ''}`}
-                onClick={() => setSanitizedView(true)}
-              >
-                <ShieldCheck size={13} color="var(--accent-success)" />
-                Sanitized (Safe View)
-              </button>
-              <button 
-                className={`${styles.viewBtn} ${!sanitizedView ? styles.viewBtnActive : ''}`}
-                onClick={() => setSanitizedView(false)}
-              >
-                Raw Page View
-              </button>
-            </div>
-
-            <label className={styles.inlineCheck}>
-              <input 
-                type="checkbox" 
-                checked={highlightSensitives}
-                onChange={(e) => setHighlightSensitives(e.target.checked)}
-              />
-              Show PII Bounds
-            </label>
-          </div>
-
-          {/* Mock Browser Frame */}
           <div className={styles.browserFrame}>
-            {/* Window Header */}
             <div className={styles.browserFrameHeader}>
               <div className={styles.dots}>
-                <span></span>
-                <span></span>
-                <span></span>
+                <span></span><span></span><span></span>
               </div>
               <div className={styles.urlBar}>
                 <Lock size={11} color="#10b981" />
-                <span>https://bhuvan.nrsc.gov.in/portal/infrastructure/reports</span>
+                <span>https://bhuvan.nrsc.gov.in/portal/reports</span>
               </div>
-              <span className={styles.sslBadge}>Protected Context</span>
+              <div className={styles.viewSwitchMini}>
+                <button 
+                  className={`${styles.viewBtnMini} ${viewMode === 'sanitized' ? styles.viewActiveMini : ''}`}
+                  onClick={() => setViewMode('sanitized')}
+                >
+                  Sanitized View
+                </button>
+                <button 
+                  className={`${styles.viewBtnMini} ${viewMode === 'raw' ? styles.viewActiveMini : ''}`}
+                  onClick={() => setViewMode('raw')}
+                >
+                  Raw View
+                </button>
+              </div>
             </div>
 
             <div className={styles.browserFrameContent}>
@@ -608,27 +413,27 @@ export default function BrowserAgentPage() {
               {/* Cursor Simulation during execution */}
               {(agentState === 'EXECUTE') && (
                 <div className={styles.cursorSim}>
-                  <MousePointer2 size={24} fill="#ff7a00" color="#ffffff" />
+                  <MousePointer2 size={22} fill="#ff7a00" color="#ffffff" />
                   <span className={styles.cursorLabel}>
-                    {simulateSelfCorrection && correctionAttempts === 1 ? 'Retrying Alternate Selector...' : 'Clicking Target'}
+                    {simulateSelfCorrection && correctionAttempts === 1 ? 'Retrying Target...' : 'Clicking Target'}
                   </span>
                 </div>
               )}
 
-              {/* Web Page Body */}
+              {/* Web Page Header */}
               <div className={styles.pageHeader}>
                 <div className={styles.pageHeaderTitle}>
                   <h3>ISRO Bhuvan &bull; Space Geospatial Registry</h3>
                   <p>National Remote Sensing Centre &bull; Department of Space</p>
                 </div>
-                <div className={styles.govEmblem}>ISRO.GOV.IN VERIFIED</div>
+                <div className={styles.govEmblem}>ISRO.GOV.IN</div>
               </div>
 
               {/* Sensitive Element Detector Live Container */}
               <div className={styles.detectorSection}>
                 <div className={styles.detectorSectionHeader}>
                   <span className={styles.detectorTitle}>
-                    <Fingerprint size={15} color="var(--accent-primary)" />
+                    <Fingerprint size={14} color="var(--accent-primary)" />
                     Project Metadata (Firewall Active)
                   </span>
                   <div className={styles.detectorBadgesList}>
@@ -639,111 +444,96 @@ export default function BrowserAgentPage() {
                 </div>
 
                 <div className={styles.dataFieldsGrid}>
-                  <div className={styles.dataFieldItem}>
-                    <span className={styles.fieldLabel}>Project Name:</span>
-                    <span className={styles.fieldValAllowed}>Smart Urban Corridor Phase II</span>
-                  </div>
-                  <div className={styles.dataFieldItem}>
-                    <span className={styles.fieldLabel}>Manager:</span>
-                    <span className={styles.fieldValAllowed}>Vaibhav Sharma</span>
-                  </div>
-                  
-                  {/* PII Field 1: Phone */}
-                  <div className={`${styles.dataFieldItem} ${highlightSensitives && agentState === 'DETECT' ? styles.fieldHighlight : ''}`}>
-                    <span className={styles.fieldLabel}>Contact Phone:</span>
-                    {sanitizedView ? (
-                      <span className="redacted-block" style={{ width: '110px' }}></span>
-                    ) : (
-                      <span className={styles.rawPii}>+91 98765 43210</span>
-                    )}
-                    <span className={styles.tagPii}>Phone</span>
+                  <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
+                    <span className={styles.fieldLabel}>Manager Name</span>
+                    <span className={styles.fieldValAllowed}>Dr. Vikram S. (Director)</span>
                   </div>
 
-                  {/* PII Field 2: Aadhaar Number */}
-                  <div className={`${styles.dataFieldItem} ${highlightSensitives && agentState === 'DETECT' ? styles.fieldHighlight : ''}`}>
-                    <span className={styles.fieldLabel}>Gov ID / Aadhaar:</span>
-                    {sanitizedView ? (
-                      <span className="redacted-block" style={{ width: '130px' }}></span>
+                  <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
+                    <span className={styles.fieldLabel}>Aadhaar ID</span>
+                    {viewMode === 'sanitized' ? (
+                      <span className="redacted-block">XXXX-XXXX-8921</span>
                     ) : (
-                      <span className={styles.rawPii}>4321 8765 1098</span>
+                      <span className={styles.rawPii}>9842-1104-8921</span>
                     )}
-                    <span className={styles.tagPii}>Gov ID</span>
+                    <span className={styles.tagPii}>PII</span>
                   </div>
 
-                  {/* PII Field 3: Email */}
-                  <div className={`${styles.dataFieldItem} ${highlightSensitives && agentState === 'DETECT' ? styles.fieldHighlight : ''}`}>
-                    <span className={styles.fieldLabel}>Email Address:</span>
-                    {sanitizedView ? (
-                      <span className="redacted-block" style={{ width: '140px' }}></span>
+                  <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
+                    <span className={styles.fieldLabel}>Phone Number</span>
+                    {viewMode === 'sanitized' ? (
+                      <span className="redacted-block">+91 9840X XXXXX</span>
                     ) : (
-                      <span className={styles.rawPii}>vaibhav.sharma@gov.in</span>
+                      <span className={styles.rawPii}>+91 98401 23456</span>
                     )}
-                    <span className={styles.tagPii}>Email</span>
+                    <span className={styles.tagPii}>PII</span>
                   </div>
 
-                  <div className={styles.dataFieldItem}>
-                    <span className={styles.fieldLabel}>Clearance Status:</span>
-                    <span className="badge success">Approved &amp; Public</span>
+                  <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
+                    <span className={styles.fieldLabel}>Official Email</span>
+                    {viewMode === 'sanitized' ? (
+                      <span className="redacted-block">v***@isro.gov.in</span>
+                    ) : (
+                      <span className={styles.rawPii}>vikram.s@isro.gov.in</span>
+                    )}
+                    <span className={styles.tagPii}>PII</span>
                   </div>
                 </div>
               </div>
 
-              {/* Action Target Section: Documents List */}
+              {/* Action Targets / Document List */}
               <div className={styles.actionSection}>
                 <div className={styles.actionHeader}>
-                  <FileText size={16} color="var(--accent-primary)" />
-                  <h4>Target Documents &amp; Exports</h4>
+                  <FileText size={15} color="var(--accent-primary)" />
+                  <h4>Available Documentation</h4>
                 </div>
 
                 <div className={styles.docListGrid}>
-                  {/* Target 1: Target Match */}
-                  <div className={`${styles.docCard} ${agentState === 'EXECUTE' || agentState === 'COMPLETED' ? styles.docCardActive : ''}`}>
+                  <div className={`${styles.docCard} ${agentState === 'EXECUTE' ? styles.docCardActive : ''}`}>
                     <div className={styles.docDetails}>
                       <div className={styles.docIconWrap}>
-                        <FileDown size={18} color="var(--accent-primary)" />
+                        <FileText size={17} color="var(--accent-primary)" />
                       </div>
                       <div>
-                        <div className={styles.docTitle}>Project_Report.pdf</div>
-                        <div className={styles.docMeta}>Annual Comprehensive Audit (2.4 MB) &bull; Public</div>
+                        <div className={styles.docTitle}>Project_Report_Q4_2026.pdf</div>
+                        <div className={styles.docMeta}>3.8 MB &bull; Verified Geospatial Survey Report</div>
                       </div>
                     </div>
 
                     <div className={styles.docActionArea}>
                       {simulateCanvasTarget ? (
                         <div className={styles.canvasButtonSim}>
-                          <span>[Canvas Action Target]</span>
+                          Canvas Geo-Target (ONNX Vision Required)
                         </div>
                       ) : (
                         <button 
-                          id="download-btn-1"
-                          className={`${styles.actionDownloadBtn} ${agentState === 'EXECUTE' || agentState === 'COMPLETED' ? styles.btnExecuting : ''}`}
+                          className={`${styles.actionDownloadBtn} ${agentState === 'EXECUTE' ? styles.btnExecuting : ''}`}
+                          id="target-download-report"
                         >
-                          <FileDown size={14} />
-                          Download PDF
+                          {agentState === 'COMPLETED' ? (
+                            <>
+                              <CheckCircle2 size={13} />
+                              Downloaded
+                            </>
+                          ) : (
+                            'Download Report'
+                          )}
                         </button>
-                      )}
-                      
-                      {agentState === 'VALIDATE' && (
-                        <span className="badge warning">Validating Risk...</span>
                       )}
                     </div>
                   </div>
 
-                  {/* Target 2: Financial Report */}
                   <div className={styles.docCard}>
                     <div className={styles.docDetails}>
                       <div className={styles.docIconWrap}>
-                        <FileDown size={18} color="var(--text-muted)" />
+                        <FileText size={17} color="var(--text-muted)" />
                       </div>
                       <div>
-                        <div className={styles.docTitle}>Financial_Quarterly_Report.pdf</div>
-                        <div className={styles.docMeta}>Q4 Expenditure &amp; Balance Sheet (1.8 MB)</div>
+                        <div className={styles.docTitle}>Environmental_Clearance_2026.pdf</div>
+                        <div className={styles.docMeta}>1.2 MB &bull; Public Works NOC &amp; Registry</div>
                       </div>
                     </div>
-                    <button className={styles.actionDownloadBtnSecondary}>
-                      <FileDown size={14} />
-                      Download PDF
-                    </button>
+                    <button className={styles.actionDownloadBtnSecondary}>View Summary</button>
                   </div>
                 </div>
               </div>
@@ -751,23 +541,23 @@ export default function BrowserAgentPage() {
           </div>
         </div>
 
-        {/* Right Column: Segregated Tabbed Intelligence Inspector */}
+        {/* Right: Focused Intelligence Inspector */}
         <div className={styles.intelligenceColumn}>
-          {/* Top Quick Telemetry HUD (3 Instant Metrics) */}
+          {/* Quick HUD Metrics Strip */}
           <div className={styles.quickHud}>
             <div className={styles.hudPill}>
-              <ShieldCheck size={14} color="var(--accent-success)" />
+              <Lock size={14} color="var(--accent-success)" />
               <div>
                 <span className={styles.hudLabel}>Privacy Saved</span>
-                <span className={styles.hudVal} style={{ color: 'var(--accent-success)' }}>{privacyBudget.percentProtected}%</span>
+                <span className={styles.hudVal} style={{ color: 'var(--accent-success)' }}>91.5%</span>
               </div>
             </div>
 
             <div className={styles.hudPill}>
-              <SlidersHorizontal size={14} color="var(--accent-warning)" />
+              <AlertTriangle size={14} color="var(--accent-warning)" />
               <div>
                 <span className={styles.hudLabel}>Risk Tier</span>
-                <span className={styles.hudVal} style={{ color: '#fbbf24' }}>{actionRisk.tier} ({actionRisk.score})</span>
+                <span className={styles.hudVal} style={{ color: 'var(--accent-warning)' }}>MEDIUM</span>
               </div>
             </div>
 
@@ -775,226 +565,158 @@ export default function BrowserAgentPage() {
               <Zap size={14} color="var(--accent-primary)" />
               <div>
                 <span className={styles.hudLabel}>Confidence</span>
-                <span className={styles.hudVal} style={{ color: 'var(--accent-primary)' }}>{confidenceScore}%</span>
+                <span className={styles.hudVal} style={{ color: 'var(--accent-primary)' }}>96%</span>
               </div>
             </div>
           </div>
 
-          {/* Inspector Segmented Tab Navigation */}
+          {/* Tabbed Inspector Card */}
           <div className={`card ${styles.inspectorCard}`}>
             <div className={styles.inspectorTabBar}>
               <button 
-                className={`${styles.inspectorTabBtn} ${activeInspectorTab === 'trace' ? styles.tabActive : ''}`}
-                onClick={() => setActiveInspectorTab('trace')}
+                className={`${styles.inspectorTabBtn} ${activeTab === 'trace' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('trace')}
               >
-                <Layers size={14} />
-                <span>Action Trace</span>
+                <Layers size={13} />
+                Action Trace
               </button>
-
               <button 
-                className={`${styles.inspectorTabBtn} ${activeInspectorTab === 'security' ? styles.tabActive : ''}`}
-                onClick={() => setActiveInspectorTab('security')}
+                className={`${styles.inspectorTabBtn} ${activeTab === 'privacy' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('privacy')}
               >
-                <ShieldCheck size={14} />
-                <span>Privacy &amp; Risk</span>
+                <Lock size={13} />
+                Privacy &amp; Risk
               </button>
-
               <button 
-                className={`${styles.inspectorTabBtn} ${activeInspectorTab === 'logs' ? styles.tabActive : ''}`}
-                onClick={() => setActiveInspectorTab('logs')}
+                className={`${styles.inspectorTabBtn} ${activeTab === 'logs' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('logs')}
               >
-                <Terminal size={14} />
-                <span>Logs &amp; Memory</span>
-                {logs.length > 0 && <span className={styles.logCountBadge}>{logs.length}</span>}
+                <Cpu size={13} />
+                Live Logs
               </button>
             </div>
 
-            {/* TAB CONTENT 1: ACTION TRACE */}
-            {activeInspectorTab === 'trace' && (
+            {/* Tab 1: Action Trace */}
+            {activeTab === 'trace' && (
               <div className={`${styles.tabPane} fade-in`}>
                 <div className={styles.paneHeaderRow}>
                   <div>
-                    <h4 className={styles.paneTitle}>Explainable Execution Pipeline</h4>
-                    <p className={styles.paneSub}>Transparent 6-stage autonomous decision trail</p>
+                    <h4 className={styles.paneTitle}>Explainable Execution Trace</h4>
+                    <p className={styles.paneSub}>Transparent 6-stage decision pipeline</p>
                   </div>
-                  <button className={styles.copyJsonBtn} onClick={copyTraceJson}>
-                    {copiedTrace ? <Check size={12} /> : <Copy size={12} />}
+                  <button className={styles.copyJsonBtn} onClick={handleCopyTrace}>
+                    {copiedTrace ? <Check size={12} color="var(--accent-success)" /> : <Copy size={12} />}
                     <span>{copiedTrace ? 'Copied' : 'JSON'}</span>
                   </button>
                 </div>
 
                 <div className={styles.traceTimeline}>
-                  {traceSteps.map((step) => (
-                    <div 
-                      key={step.id} 
-                      className={`${styles.traceStep} ${styles['trace_' + step.status]}`}
-                    >
-                      <div className={styles.traceStepTop} onClick={() => toggleTraceExpand(step.id)}>
-                        <div className={styles.traceStepLeft}>
-                          <span className={styles.traceNodeDot}></span>
-                          <span className={styles.traceStepLabel}>{step.num}. {step.label}</span>
-                        </div>
-                        <div className={styles.traceStepRight}>
+                  {executionTrace.map((step) => {
+                    const isActive = step.status === 'active';
+                    const isDone = step.status === 'completed';
+                    return (
+                      <div 
+                        key={step.id} 
+                        className={`${styles.traceStep} ${isActive ? styles.trace_active : ''} ${isDone ? styles.trace_completed : ''}`}
+                      >
+                        <div className={styles.traceStepTop}>
+                          <div className={styles.traceStepLeft}>
+                            <div className={styles.traceNodeDot}></div>
+                            <span className={styles.traceStepLabel}>{step.name}</span>
+                          </div>
                           <span className={styles.traceBadge}>{step.badge}</span>
-                          {step.expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                         </div>
+                        {(isActive || isDone) && (
+                          <div className={styles.traceDetailBox}>
+                            {step.details}
+                          </div>
+                        )}
                       </div>
-
-                      {step.expanded && (
-                        <div className={`${styles.traceDetailBox} fade-in`}>
-                          <p>{step.desc}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
-                {simulateSelfCorrection && correctionAttempts > 0 && (
+                {simulateSelfCorrection && correctionAttempts === 1 && (
                   <div className={styles.selfCorrectionNotice}>
-                    <RefreshCw size={13} className="processing-pulse" />
-                    <span>Self-Correction Loop: Alternative target selector resolved successfully</span>
+                    <RefreshCw size={13} />
+                    <span>Self-Correction loop automatically recovered target state</span>
                   </div>
                 )}
               </div>
             )}
 
-            {/* TAB CONTENT 2: PRIVACY & RISK ENGINE */}
-            {activeInspectorTab === 'security' && (
+            {/* Tab 2: Privacy & Risk Budget */}
+            {activeTab === 'privacy' && (
               <div className={`${styles.tabPane} fade-in`}>
-                {/* Section A: Privacy Budget */}
                 <div className={styles.inspectorSection}>
-                  <div className={styles.sectionHeaderRow}>
-                    <ShieldCheck size={16} color="var(--accent-success)" />
-                    <h4 className={styles.sectionHeading}>On-Device Privacy Firewall</h4>
-                  </div>
-
+                  <h4 className={styles.paneTitle}>Differential Privacy Budget</h4>
                   <div className={styles.budgetGaugeContainer}>
                     <div className={styles.gaugeHeader}>
-                      <span>Protected Context Ratio</span>
-                      <strong className={styles.gaugeValue}>{privacyBudget.percentProtected}%</strong>
+                      <span>Transmission Protection</span>
+                      <strong className={styles.gaugeValue}>91.5% Minimized</strong>
                     </div>
                     <div className={styles.progressBar}>
-                      <div 
-                        className={styles.progressFill} 
-                        style={{ width: `${privacyBudget.percentProtected}%` }}
-                      ></div>
+                      <div className={styles.progressFill} style={{ width: '91.5%' }}></div>
                     </div>
                     <div className={styles.budgetBreakdownRow}>
                       <div>
-                        <span className={styles.subText}>Captured</span>
-                        <strong>{privacyBudget.totalBytesCaptured} B</strong>
+                        <span className={styles.subText}>Entities Masked</span>
+                        <strong>3 Items</strong>
                       </div>
                       <div>
-                        <span className={styles.subText}>Transmitted</span>
-                        <strong style={{ color: 'var(--accent-primary)' }}>{privacyBudget.bytesTransmitted} B</strong>
+                        <span className={styles.subText}>DOM Nodes Cleaned</span>
+                        <strong>14 Nodes</strong>
                       </div>
                       <div>
-                        <span className={styles.subText}>PII Masked</span>
-                        <strong style={{ color: 'var(--accent-warning)' }}>{privacyBudget.sensitiveBlocked} items</strong>
+                        <span className={styles.subText}>Payload Epsilon</span>
+                        <strong>0.14 ε</strong>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Section B: Action Risk & Confidence */}
                 <div className={styles.inspectorSection}>
-                  <div className={styles.sectionHeaderRow}>
-                    <SlidersHorizontal size={16} color="var(--accent-primary)" />
-                    <h4 className={styles.sectionHeading}>Risk &amp; Confidence Engine</h4>
-                  </div>
-
+                  <h4 className={styles.paneTitle}>Adaptive Perception Architecture</h4>
                   <div className={styles.dualEngineGrid}>
                     <div className={styles.engineCol}>
-                      <span className={styles.engineLabel}>Action Risk</span>
+                      <span className={styles.engineLabel}>Primary Tier</span>
                       <div className={styles.engineBadgeRow}>
-                        <span className={`badge risk-${actionRisk.tier.toLowerCase()}`}>
-                          {actionRisk.tier} ({actionRisk.score})
-                        </span>
+                        <span className="badge success">DOM Fast-Path</span>
+                        <span className={styles.engineTime}>12ms</span>
                       </div>
-                      <p className={styles.engineSub}>{actionRisk.reason}</p>
+                      <p className={styles.engineSub}>Zero-token local parsing for standard semantic web elements</p>
                     </div>
 
                     <div className={styles.engineCol}>
-                      <span className={styles.engineLabel}>Confidence</span>
+                      <span className={styles.engineLabel}>Fallback Tier</span>
                       <div className={styles.engineBadgeRow}>
-                        <span className={`badge ${confidenceScore > 90 ? 'success' : 'warning'}`}>
-                          {confidenceScore}%
-                        </span>
-                        <span className="badge primary" style={{ fontSize: '0.62rem' }}>
-                          {ambiguityLevel} Ambiguity
-                        </span>
+                        <span className="badge warning">Local ONNX Vision</span>
+                        <span className={styles.engineTime}>38ms</span>
                       </div>
-                      <p className={styles.engineSub}>
-                        {confidenceScore > 90 ? '⚡ Direct Execute' : '🔍 Evidence Verified'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section C: Hybrid Latency Routing */}
-                <div className={styles.inspectorSection}>
-                  <div className={styles.sectionHeaderRow}>
-                    <Cpu size={16} color="var(--accent-purple)" />
-                    <h4 className={styles.sectionHeading}>Intelligent Hybrid Latency</h4>
-                  </div>
-
-                  <div className={styles.routingStatsRow}>
-                    <div className={styles.routingStatBox}>
-                      <span className={styles.subText}>Local Perception</span>
-                      <strong style={{ color: 'var(--accent-primary)' }}>{routingStats.localPerceptionDuration}</strong>
-                    </div>
-                    <div className={styles.routingStatBox}>
-                      <span className={styles.subText}>LLM Reasoning</span>
-                      <strong style={{ color: 'var(--accent-purple)' }}>{routingStats.cloudReasoningDuration}</strong>
-                    </div>
-                    <div className={styles.routingStatBox}>
-                      <span className={styles.subText}>Context Minimized</span>
-                      <strong style={{ color: 'var(--accent-success)' }}>{routingStats.contextMinimizedPercent}</strong>
+                      <p className={styles.engineSub}>On-device WebGPU visual grounding for unstructured canvas</p>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* TAB CONTENT 3: LOGS & TASK MEMORY */}
-            {activeInspectorTab === 'logs' && (
+            {/* Tab 3: Live Logs */}
+            {activeTab === 'logs' && (
               <div className={`${styles.tabPane} fade-in`}>
-                {/* Live Logs */}
-                <div className={styles.inspectorSection}>
-                  <div className={styles.sectionHeaderRow}>
-                    <Activity size={16} color="var(--accent-primary)" />
-                    <h4 className={styles.sectionHeading}>Live Execution Terminal</h4>
-                  </div>
-
-                  <div className={styles.liveLogBox}>
-                    {logs.length === 0 ? (
-                      <div className={styles.emptyLog}>Ready for execution. Click "Execute Agent" above.</div>
-                    ) : (
-                      logs.map((l, i) => (
-                        <div key={i} className={styles.liveLogItem}>
-                          <span className={styles.liveLogTime}>{l.time}</span>
-                          <span className={styles[`log_${l.type}`]}>{l.message}</span>
-                        </div>
-                      ))
-                    )}
+                <div className={styles.paneHeaderRow}>
+                  <div>
+                    <h4 className={styles.paneTitle}>Perception Engine Terminal</h4>
+                    <p className={styles.paneSub}>Live WebGPU / WASM execution logs</p>
                   </div>
                 </div>
 
-                {/* Task Memory */}
-                <div className={styles.inspectorSection}>
-                  <div className={styles.sectionHeaderRow}>
-                    <Database size={16} color="var(--accent-cyan)" />
-                    <h4 className={styles.sectionHeading}>Safe Task Memory (Zero Credentials)</h4>
-                  </div>
-
-                  <div className={styles.memoryItemsList}>
-                    {taskMemory.map((mem, idx) => (
-                      <div key={idx} className={styles.memoryItem}>
-                        <span className={styles.memoryKey}>{mem.key}:</span>
-                        <span className={styles.memoryVal}>{mem.value}</span>
-                      </div>
-                    ))}
-                  </div>
+                <div className={styles.liveLogBox}>
+                  {logs.map((l, i) => (
+                    <div key={i} className={styles.liveLogItem}>
+                      <span className={styles.liveLogTime}>{l.time}</span>
+                      <span className={styles['log_' + l.type]}>{l.text}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
