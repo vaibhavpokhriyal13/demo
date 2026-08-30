@@ -28,7 +28,7 @@
 .title {
   font-size: 1.65rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-main);
   letter-spacing: -0.03em;
 }
 
@@ -40,9 +40,9 @@
 }
 
 .topBadge {
-  background: rgba(16, 185, 129, 0.12);
+  background: var(--accent-success-subtle);
   border: 1px solid rgba(16, 185, 129, 0.25);
-  color: #34d399;
+  color: var(--accent-success);
   padding: 0.35rem 0.85rem;
   border-radius: 999px;
   font-size: 0.78rem;
@@ -72,7 +72,7 @@
 .metricBig {
   font-size: 1.75rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-main);
   margin-bottom: 0.2rem;
 }
 
@@ -85,12 +85,13 @@
 /* Tab Navigation */
 .tabNavContainer {
   display: flex;
-  background: rgba(14, 18, 27, 0.7);
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   padding: 4px;
   border-radius: 12px;
   gap: 0.4rem;
   overflow-x: auto;
+  box-shadow: var(--card-shadow);
 }
 
 .tabBtn {
@@ -114,14 +115,14 @@
 
 .tabBtn:hover {
   color: var(--text-main);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bg-subtle);
 }
 
 .tabBtnActive {
-  background: var(--bg-card);
-  color: #ffffff;
+  background: var(--bg-elevated);
+  color: var(--text-main);
   border: 1px solid var(--border-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Sandbox Card */
@@ -148,7 +149,7 @@
 .sectionTitle {
   font-size: 1rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-main);
 }
 
 .sectionDesc {
@@ -170,7 +171,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px var(--accent-primary-glow);
 }
 
 .testBtn:hover {
@@ -204,7 +205,7 @@
 }
 
 .sandboxTextarea {
-  background: rgba(8, 10, 15, 0.65);
+  background: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 0.75rem;
@@ -221,7 +222,7 @@
 }
 
 .sandboxOutputBox {
-  background: #090c12;
+  background: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 0.75rem;
@@ -231,7 +232,7 @@
 }
 
 .sanitizedOutputText {
-  color: #34d399;
+  color: var(--accent-success);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.82rem;
   line-height: 1.4;
@@ -260,7 +261,7 @@
 }
 
 .flowNode {
-  background: rgba(14, 18, 26, 0.6);
+  background: var(--bg-elevated);
   border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 1rem 0.85rem;
@@ -278,8 +279,8 @@
   font-weight: 700;
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
+  background: var(--accent-primary-subtle);
+  color: var(--accent-primary);
 }
 
 .nodeIconWrap {
@@ -294,7 +295,7 @@
 
 .flowNode h4 {
   font-size: 0.82rem;
-  color: #ffffff;
+  color: var(--text-main);
 }
 
 .flowNode p {
@@ -330,7 +331,7 @@
 }
 
 .filterBtn {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bg-subtle);
   border: 1px solid var(--border-color);
   color: var(--text-muted);
   padding: 0.3rem 0.75rem;
@@ -344,12 +345,13 @@
 
 .filterBtn:hover {
   color: var(--text-main);
+  background: var(--bg-elevated);
 }
 
 .filterActive {
   background: var(--accent-primary-subtle);
   border-color: rgba(59, 130, 246, 0.4);
-  color: #60a5fa;
+  color: var(--accent-primary);
   font-weight: 600;
 }
 
@@ -375,31 +377,31 @@
 .rulesTable td {
   padding: 0.75rem 0.85rem;
   font-size: 0.78rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .rulesTable tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--bg-subtle);
 }
 
 .entityCol strong {
-  color: #ffffff;
+  color: var(--text-main);
 }
 
 .codeCol code {
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--bg-elevated);
   padding: 0.2rem 0.45rem;
   border-radius: 4px;
   font-size: 0.72rem;
-  color: #22d3ee;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--accent-primary);
+  border: 1px solid var(--border-color);
 }
 
 .statusLive {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: #34d399;
+  color: var(--accent-success);
   font-size: 0.74rem;
 }
 
@@ -407,9 +409,9 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #10b981;
+  background: var(--accent-success);
 }
 
 .countCol strong {
-  color: #ffffff;
+  color: var(--text-main);
 }
