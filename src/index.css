@@ -210,7 +210,7 @@ code, pre {
 
 .page-content {
   flex-grow: 1;
-  padding: 1.5rem 2rem;
+  padding: 1.15rem 1.5rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;

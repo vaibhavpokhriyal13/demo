@@ -51,9 +51,6 @@ function App() {
       <main className="main-content">
         <div className="page-content">
           {renderContent()}
-          <footer style={{ marginTop: 'auto', paddingTop: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.82rem', paddingBottom: '1rem' }}>
-            PrivAgent SIH26171 &bull; On-Device Visual Perception &amp; Local Privacy Firewall &bull; 2026
-          </footer>
         </div>
       </main>
     </div>
