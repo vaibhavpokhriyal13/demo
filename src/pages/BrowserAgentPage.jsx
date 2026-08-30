@@ -386,7 +386,7 @@ export default function BrowserAgentPage() {
               </div>
               <div className={styles.urlBar}>
                 <Lock size={11} color="#10b981" />
-                <span>https://bhuvan.nrsc.gov.in/portal/reports</span>
+                <span>https://gov.in/portal/infrastructure/reports</span>
               </div>
               <div className={styles.viewSwitchMini}>
                 <button 
@@ -413,7 +413,7 @@ export default function BrowserAgentPage() {
               {/* Cursor Simulation during execution */}
               {(agentState === 'EXECUTE') && (
                 <div className={styles.cursorSim}>
-                  <MousePointer2 size={22} fill="#ff7a00" color="#ffffff" />
+                  <MousePointer2 size={22} fill="var(--accent-primary)" color="#ffffff" />
                   <span className={styles.cursorLabel}>
                     {simulateSelfCorrection && correctionAttempts === 1 ? 'Retrying Target...' : 'Clicking Target'}
                   </span>
@@ -423,10 +423,10 @@ export default function BrowserAgentPage() {
               {/* Web Page Header */}
               <div className={styles.pageHeader}>
                 <div className={styles.pageHeaderTitle}>
-                  <h3>ISRO Bhuvan &bull; Space Geospatial Registry</h3>
-                  <p>National Remote Sensing Centre &bull; Department of Space</p>
+                  <h3>Infrastructure Project Management Portal</h3>
+                  <p>National Development &amp; Public Works Registry</p>
                 </div>
-                <div className={styles.govEmblem}>ISRO.GOV.IN</div>
+                <div className={styles.govEmblem}>GOV.IN VERIFIED</div>
               </div>
 
               {/* Sensitive Element Detector Live Container */}

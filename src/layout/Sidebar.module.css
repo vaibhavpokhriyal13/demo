@@ -221,19 +221,14 @@
   position: relative;
 }
 
-.switch_dark {
+.switchDark {
   background: #374151;
   justify-content: flex-end;
 }
 
-.switch_light {
+.switchLight {
   background: #bfdbfe;
   justify-content: flex-start;
-}
-
-.switch_isro {
-  background: linear-gradient(90deg, #f97316, #0284c7);
-  justify-content: center;
 }
 
 .switchKnob {

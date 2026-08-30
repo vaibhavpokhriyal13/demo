@@ -10,8 +10,7 @@ import {
   X,
   Sparkles,
   Sun,
-  Moon,
-  Rocket
+  Moon
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
@@ -25,20 +24,6 @@ export default function Sidebar({ activeTab, setActiveTab, theme, toggleTheme })
     { id: 'logs', label: 'Action Audit Trace', icon: <Activity size={18} /> },
     { id: 'settings', label: 'Policy Settings', icon: <Settings size={18} /> },
   ];
-
-  const getThemeInfo = () => {
-    switch (theme) {
-      case 'isro':
-        return { label: 'ISRO Space Mode', icon: <Rocket size={15} color="#f97316" /> };
-      case 'light':
-        return { label: 'Light Mode', icon: <Sun size={15} color="#f59e0b" /> };
-      case 'dark':
-      default:
-        return { label: 'Dark Mode', icon: <Moon size={15} color="#818cf8" /> };
-    }
-  };
-
-  const themeInfo = getThemeInfo();
 
   return (
     <>
@@ -58,10 +43,10 @@ export default function Sidebar({ activeTab, setActiveTab, theme, toggleTheme })
           <button 
             className={styles.themeToggleBtn} 
             onClick={toggleTheme} 
-            aria-label="Cycle Theme"
-            title={`Current: ${themeInfo.label} (Click to switch)`}
+            aria-label="Toggle Theme"
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
           >
-            {themeInfo.icon}
+            {theme === 'dark' ? <Moon size={15} color="#818cf8" /> : <Sun size={15} color="#f59e0b" />}
           </button>
 
           <button className={styles.hamburgerBtn} onClick={() => setIsOpen(true)} aria-label="Open Navigation">
@@ -77,7 +62,7 @@ export default function Sidebar({ activeTab, setActiveTab, theme, toggleTheme })
       <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.logoContainer}>
           <div className={styles.logoEmblem}>
-            <Rocket size={20} color="#ffffff" />
+            <Shield size={20} color="#ffffff" />
             <div className={styles.emblemGlow}></div>
           </div>
           <div className={styles.logoInfo}>
@@ -85,7 +70,7 @@ export default function Sidebar({ activeTab, setActiveTab, theme, toggleTheme })
               <h1 className={styles.logoText}>PrivAgent</h1>
               <span className={styles.versionPill}>SIH 2026</span>
             </div>
-            <p className={styles.logoSubtext}>Bharatiya Antariksh Hackathon</p>
+            <p className={styles.logoSubtext}>On-Device Privacy &amp; Perception</p>
           </div>
           <button className={styles.closeBtn} onClick={() => setIsOpen(false)} aria-label="Close Navigation">
             <X size={18} color="var(--text-main)" />
@@ -119,21 +104,19 @@ export default function Sidebar({ activeTab, setActiveTab, theme, toggleTheme })
         </nav>
         
         <div className={styles.footer}>
-          {/* 3-Way Theme Switcher */}
+          {/* 2-Way Theme Switcher */}
           <button 
             className={styles.themeToggleBar} 
             onClick={toggleTheme}
-            title={`Current: ${themeInfo.label} (Click to cycle ISRO / Dark / Light)`}
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
           >
             <div className={styles.themeToggleLeft}>
-              {themeInfo.icon}
-              <span>{themeInfo.label}</span>
+              {theme === 'dark' ? <Moon size={15} color="#818cf8" /> : <Sun size={15} color="#f59e0b" />}
+              <span>{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
             </div>
-            <div className={`${styles.themeSwitchPill} ${styles['switch_' + theme]}`}>
+            <div className={`${styles.themeSwitchPill} ${theme === 'dark' ? styles.switchDark : styles.switchLight}`}>
               <div className={styles.switchKnob}>
-                {theme === 'isro' && <Rocket size={10} color="#f97316" />}
-                {theme === 'dark' && <Moon size={10} color="#818cf8" />}
-                {theme === 'light' && <Sun size={10} color="#f59e0b" />}
+                {theme === 'dark' ? <Moon size={10} color="#818cf8" /> : <Sun size={10} color="#f59e0b" />}
               </div>
             </div>
           </button>

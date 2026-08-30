@@ -10,7 +10,8 @@ function App() {
   const [activeTab, setActiveTab] = useState('agent');
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('privagent_theme');
-    return saved || 'isro';
+    if (saved && (saved === 'dark' || saved === 'light')) return saved;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
   });
 
   useEffect(() => {
@@ -19,11 +20,7 @@ function App() {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => {
-      if (prev === 'isro') return 'dark';
-      if (prev === 'dark') return 'light';
-      return 'isro';
-    });
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   const renderContent = () => {
