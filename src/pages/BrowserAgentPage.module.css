@@ -580,22 +580,35 @@
   box-shadow: 0 0 10px var(--accent-warning-glow);
 }
 
+.fieldTopRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .fieldLabel {
   font-size: 0.64rem;
   color: var(--text-subtle);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .fieldValAllowed {
   font-size: 0.78rem;
   color: var(--text-main);
   font-weight: 600;
+  margin-top: 0.15rem;
 }
 
 .fieldRole {
-  font-size: 0.62rem;
-  color: var(--text-subtle);
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  background: var(--accent-primary-subtle);
+  padding: 0.08rem 0.35rem;
+  border-radius: 9999px;
 }
 
 .rawPii {
@@ -603,12 +616,10 @@
   font-family: 'JetBrains Mono', monospace;
   color: var(--accent-danger);
   font-weight: 600;
+  margin-top: 0.15rem;
 }
 
 .tagPii {
-  position: absolute;
-  top: 0.4rem;
-  right: 0.5rem;
   font-size: 0.55rem;
   color: var(--accent-warning);
   background: var(--accent-warning-subtle);
@@ -616,6 +627,8 @@
   padding: 0.08rem 0.4rem;
   border-radius: 9999px;
   font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Reports & Document Repository */

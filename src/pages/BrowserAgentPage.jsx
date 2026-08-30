@@ -491,59 +491,71 @@ export default function BrowserAgentPage() {
 
                 <div className={styles.dataFieldsGrid}>
                   <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <span className={styles.fieldLabel}>Principal Director</span>
+                    <div className={styles.fieldTopRow}>
+                      <span className={styles.fieldLabel}>Director</span>
+                      <span className={styles.fieldRole}>SIGNATORY</span>
+                    </div>
                     <span className={styles.fieldValAllowed}>Dr. Rajeshwar Sharma (IAS)</span>
-                    <span className={styles.fieldRole}>Authorized Signatory</span>
                   </div>
 
                   <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <span className={styles.fieldLabel}>Director Aadhaar KYC</span>
+                    <div className={styles.fieldTopRow}>
+                      <span className={styles.fieldLabel}>Aadhaar ID</span>
+                      <span className={styles.tagPii}>AADHAAR</span>
+                    </div>
                     {viewMode === 'sanitized' ? (
                       <span className="redacted-block">XXXX-XXXX-8921</span>
                     ) : (
                       <span className={styles.rawPii}>9842-1104-8921</span>
                     )}
-                    <span className={styles.tagPii}>AADHAAR</span>
                   </div>
 
                   <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <span className={styles.fieldLabel}>Site Supervisor Contact</span>
+                    <div className={styles.fieldTopRow}>
+                      <span className={styles.fieldLabel}>Contact Phone</span>
+                      <span className={styles.tagPii}>PHONE</span>
+                    </div>
                     {viewMode === 'sanitized' ? (
                       <span className="redacted-block">+91 9840X XXXXX</span>
                     ) : (
                       <span className={styles.rawPii}>+91 98401 23456</span>
                     )}
-                    <span className={styles.tagPii}>PHONE</span>
                   </div>
 
                   <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <span className={styles.fieldLabel}>Contractor PAN Card</span>
+                    <div className={styles.fieldTopRow}>
+                      <span className={styles.fieldLabel}>Contractor PAN</span>
+                      <span className={styles.tagPii}>PAN</span>
+                    </div>
                     {viewMode === 'sanitized' ? (
                       <span className="redacted-block">ABCPSXXXXF</span>
                     ) : (
                       <span className={styles.rawPii}>ABCPS9182F</span>
                     )}
-                    <span className={styles.tagPii}>PAN</span>
                   </div>
 
                   <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <span className={styles.fieldLabel}>Escrow Bank Account</span>
+                    <div className={styles.fieldTopRow}>
+                      <span className={styles.fieldLabel}>Escrow Account</span>
+                      <span className={styles.tagPii}>BANK_ACC</span>
+                    </div>
                     {viewMode === 'sanitized' ? (
                       <span className="redacted-block">HDFC-0092-XXXX-4421</span>
                     ) : (
                       <span className={styles.rawPii}>HDFC-0092-1049-4421</span>
                     )}
-                    <span className={styles.tagPii}>BANK_ACC</span>
                   </div>
 
                   <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <span className={styles.fieldLabel}>Official Audit Email</span>
+                    <div className={styles.fieldTopRow}>
+                      <span className={styles.fieldLabel}>Audit Email</span>
+                      <span className={styles.tagPii}>EMAIL</span>
+                    </div>
                     {viewMode === 'sanitized' ? (
                       <span className="redacted-block">r***@morth.gov.in</span>
                     ) : (
                       <span className={styles.rawPii}>rajesh.s@morth.gov.in</span>
                     )}
-                    <span className={styles.tagPii}>EMAIL</span>
                   </div>
                 </div>
               </div>
