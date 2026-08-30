@@ -8,7 +8,9 @@ import {
   Search,
   Copy,
   Check,
-  RefreshCw
+  RefreshCw,
+  SlidersHorizontal,
+  X
 } from 'lucide-react';
 import styles from './LogsPage.module.css';
 
@@ -123,21 +125,29 @@ export default function LogsPage() {
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <h2 className={styles.pageTitle}>Explainable Action Audit Logs</h2>
+          <div className={styles.titleRow}>
+            <h2 className={styles.pageTitle}>Action Audit Logs</h2>
+            <span className="badge purple">Explainable Traces</span>
+          </div>
           <p className={styles.subtitle}>
-            Full transparent trace of observations, privacy interventions, risk assessments, and execution state checks.
+            Full transparent trace of perceptions, privacy interventions, risk assessments, and execution state checks.
           </p>
         </div>
         
         <div className={styles.topActions}>
           <div className={styles.searchBar}>
-            <Search size={16} color="var(--text-subtle)" />
+            <Search size={15} color="var(--text-subtle)" />
             <input 
               type="text" 
-              placeholder="Search audit tasks or status..." 
+              placeholder="Search audit tasks..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {searchTerm && (
+              <button className={styles.clearSearchBtn} onClick={() => setSearchTerm('')} aria-label="Clear search">
+                <X size={13} />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -172,86 +182,100 @@ export default function LogsPage() {
 
       {/* Logs List / Cards */}
       <div className={styles.logsList}>
-        {filteredLogs.map((log) => {
-          const isExpanded = expandedId === log.id;
-          return (
-            <div key={log.id} className={`card ${styles.logCard}`}>
-              <div className={styles.logSummaryRow} onClick={() => toggleExpand(log.id)}>
-                <div className={styles.logLeft}>
-                  <span className={styles.timeBadge}>{log.timestamp}</span>
-                  <div>
-                    <h4 className={styles.taskTitle}>{log.task}</h4>
-                    <div className={styles.logMetaRow}>
-                      <span className="badge primary">
-                        {log.perception.includes('Vision') ? <Eye size={12} /> : <Zap size={12} />}
-                        {log.perception}
-                      </span>
-                      <span className={`badge risk-${log.risk.tier.toLowerCase()}`}>
-                        Risk: {log.risk.tier} ({log.risk.score})
-                      </span>
-                      <span className="badge success">
-                        {log.confidence}% Confidence
-                      </span>
-                      <span className="badge warning">
-                        🛡️ {log.piiBlocked.length} PII Masked
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.logRight}>
-                  <span className="badge success">{log.status}</span>
-                  <button 
-                    className={styles.copyBtn} 
-                    onClick={(e) => handleCopyTrace(log, e)}
-                    title="Copy Trace JSON"
-                  >
-                    {copiedId === log.id ? <Check size={14} color="#34d399" /> : <Copy size={14} />}
-                  </button>
-                  <button className={styles.expandBtn} aria-label="Toggle Details">
-                    {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Expandable Explainable Action Trace */}
-              {isExpanded && (
-                <div className={`${styles.explainableDrawer} fade-in`}>
-                  <div className={styles.drawerHeader}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                      <Layers size={16} color="var(--accent-purple)" />
-                      <strong>Explainable 6-Stage Action Trace Pipeline</strong>
-                    </div>
-                    <span className={styles.savedMetric}>Cloud Context Minimized: {log.cloudContextSaved}</span>
-                  </div>
-
-                  <div className={styles.traceTimeline}>
-                    {log.trace.map((step, idx) => (
-                      <div key={idx} className={styles.traceStepItem}>
-                        <div className={styles.stepBullet}>
-                          <span>{idx + 1}</span>
-                        </div>
-                        <div className={styles.stepBody}>
-                          <div className={styles.stepPhase}>{step.phase}</div>
-                          <p className={styles.stepText}>{step.text}</p>
-                        </div>
+        {filteredLogs.length === 0 ? (
+          <div className={`card ${styles.emptyStateCard}`}>
+            <Search size={32} color="var(--text-subtle)" />
+            <h4>No audit traces match your criteria</h4>
+            <p>Try searching for different keywords or reset your filters.</p>
+            <button 
+              className={styles.resetFiltersBtn} 
+              onClick={() => { setSearchTerm(''); setSelectedFilter('ALL'); }}
+            >
+              Reset Filters
+            </button>
+          </div>
+        ) : (
+          filteredLogs.map((log) => {
+            const isExpanded = expandedId === log.id;
+            return (
+              <div key={log.id} className={`card ${styles.logCard}`}>
+                <div className={styles.logSummaryRow} onClick={() => toggleExpand(log.id)}>
+                  <div className={styles.logLeft}>
+                    <span className={styles.timeBadge}>{log.timestamp}</span>
+                    <div>
+                      <h4 className={styles.taskTitle}>{log.task}</h4>
+                      <div className={styles.logMetaRow}>
+                        <span className="badge primary">
+                          {log.perception.includes('Vision') ? <Eye size={11} /> : <Zap size={11} />}
+                          {log.perception}
+                        </span>
+                        <span className={`badge risk-${log.risk.tier.toLowerCase()}`}>
+                          Risk: {log.risk.tier} ({log.risk.score})
+                        </span>
+                        <span className="badge success">
+                          {log.confidence}% Confidence
+                        </span>
+                        <span className="badge warning">
+                          🛡️ {log.piiBlocked.length} PII Masked
+                        </span>
                       </div>
-                    ))}
+                    </div>
                   </div>
 
-                  <div className={styles.piiTagContainer}>
-                    <span className={styles.piiTagHeader}>Protected Entities in this Execution:</span>
-                    {log.piiBlocked.map((item, i) => (
-                      <span key={i} className={styles.piiPill}>
-                        🔒 {item}
-                      </span>
-                    ))}
+                  <div className={styles.logRight}>
+                    <span className="badge success">{log.status}</span>
+                    <button 
+                      className={styles.copyBtn} 
+                      onClick={(e) => handleCopyTrace(log, e)}
+                      title="Copy Trace JSON"
+                    >
+                      {copiedId === log.id ? <Check size={13} color="var(--accent-success)" /> : <Copy size={13} />}
+                    </button>
+                    <button className={styles.expandBtn} aria-label="Toggle Details">
+                      {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </button>
                   </div>
                 </div>
-              )}
-            </div>
-          );
-        })}
+
+                {/* Expandable Explainable Action Trace */}
+                {isExpanded && (
+                  <div className={`${styles.explainableDrawer} fade-in`}>
+                    <div className={styles.drawerHeader}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Layers size={15} color="var(--accent-purple)" />
+                        <strong>Explainable 6-Stage Action Trace Pipeline</strong>
+                      </div>
+                      <span className={styles.savedMetric}>Context Minimized: {log.cloudContextSaved}</span>
+                    </div>
+
+                    <div className={styles.traceTimeline}>
+                      {log.trace.map((step, idx) => (
+                        <div key={idx} className={styles.traceStepItem}>
+                          <div className={styles.stepBullet}>
+                            <span>{idx + 1}</span>
+                          </div>
+                          <div className={styles.stepBody}>
+                            <div className={styles.stepPhase}>{step.phase}</div>
+                            <p className={styles.stepText}>{step.text}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className={styles.piiTagContainer}>
+                      <span className={styles.piiTagHeader}>Protected Entities:</span>
+                      {log.piiBlocked.map((item, i) => (
+                        <span key={i} className={styles.piiPill}>
+                          🔒 {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
