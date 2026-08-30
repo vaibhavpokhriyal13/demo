@@ -66,8 +66,8 @@
 .themeOption {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  padding: 0.95rem 1.15rem;
-  border-radius: 12px;
+  padding: 1.05rem 1.25rem;
+  border-radius: 18px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -78,19 +78,19 @@
 .themeOption:hover {
   border-color: var(--border-color-hover);
   background: var(--bg-card-hover);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .themeActive {
   border-color: var(--accent-primary) !important;
   background: var(--accent-primary-subtle) !important;
-  box-shadow: 0 0 16px var(--accent-primary-glow);
+  box-shadow: 0 4px 20px var(--accent-primary-glow);
 }
 
 .themeIconWrap {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -26,10 +26,10 @@
 }
 
 .title {
-  font-size: 1.65rem;
+  font-size: 1.75rem;
   font-weight: 800;
   color: var(--text-main);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
 }
 
 .subtitle {
@@ -43,9 +43,10 @@
   background: var(--accent-success-subtle);
   border: 1px solid rgba(16, 185, 129, 0.25);
   color: var(--accent-success);
-  padding: 0.35rem 0.85rem;
-  border-radius: 999px;
+  padding: 0.35rem 0.95rem;
+  border-radius: 9999px;
   font-size: 0.78rem;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.45rem;
@@ -70,7 +71,7 @@
 }
 
 .metricBig {
-  font-size: 1.75rem;
+  font-size: 1.85rem;
   font-weight: 800;
   color: var(--text-main);
   margin-bottom: 0.2rem;
@@ -82,13 +83,13 @@
   line-height: 1.35;
 }
 
-/* Tab Navigation */
+/* Tab Navigation - Spotify Segmented Pill */
 .tabNavContainer {
   display: flex;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  padding: 4px;
-  border-radius: 12px;
+  padding: 5px;
+  border-radius: 9999px;
   gap: 0.4rem;
   overflow-x: auto;
   box-shadow: var(--card-shadow);
@@ -100,15 +101,15 @@
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  padding: 0.6rem 1rem;
+  padding: 0.6rem 1.25rem;
   background: transparent;
   border: none;
   color: var(--text-muted);
   font-size: 0.82rem;
-  font-weight: 600;
-  border-radius: 8px;
+  font-weight: 700;
+  border-radius: 9999px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   font-family: inherit;
   white-space: nowrap;
 }
@@ -121,15 +122,15 @@
 .tabBtnActive {
   background: var(--bg-elevated);
   color: var(--text-main);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 /* Sandbox Card */
 .sandboxCard {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.15rem;
+  border-radius: 20px;
 }
 
 .sandboxHeader {
@@ -158,25 +159,25 @@
 }
 
 .testBtn {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--accent-primary) 0%, #ea580c 100%);
   color: #ffffff;
   border: none;
-  border-radius: 8px;
-  padding: 0.55rem 1.15rem;
+  border-radius: 9999px;
+  padding: 0.55rem 1.25rem;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.45rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   font-family: inherit;
-  box-shadow: 0 4px 12px var(--accent-primary-glow);
+  box-shadow: 0 4px 14px var(--accent-primary-glow);
 }
 
 .testBtn:hover {
-  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--accent-primary-glow);
 }
 
 .sandboxGrid {
@@ -207,8 +208,8 @@
 .sandboxTextarea {
   background: var(--bg-input);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 0.75rem;
+  border-radius: 16px;
+  padding: 0.85rem;
   color: var(--text-main);
   font-size: 0.82rem;
   font-family: 'JetBrains Mono', monospace;
@@ -219,13 +220,14 @@
 
 .sandboxTextarea:focus {
   border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-primary-subtle);
 }
 
 .sandboxOutputBox {
   background: var(--bg-input);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 0.75rem;
+  border-radius: 16px;
+  padding: 0.85rem;
   min-height: 100px;
   display: flex;
   align-items: center;
@@ -249,6 +251,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  border-radius: 20px;
 }
 
 .flowPipeline {
@@ -263,8 +266,8 @@
 .flowNode {
   background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1rem 0.85rem;
+  border-radius: 18px;
+  padding: 1.15rem 0.95rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -272,21 +275,27 @@
   gap: 0.45rem;
   flex: 1;
   min-width: 140px;
+  transition: all 0.2s ease;
+}
+
+.flowNode:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-color-hover);
 }
 
 .nodeBadge {
   font-size: 0.62rem;
   font-weight: 700;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  border-radius: 9999px;
   background: var(--accent-primary-subtle);
   color: var(--accent-primary);
 }
 
 .nodeIconWrap {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -294,7 +303,7 @@
 }
 
 .flowNode h4 {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   color: var(--text-main);
 }
 
@@ -315,6 +324,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  border-radius: 20px;
 }
 
 .tableToolbar {
@@ -334,10 +344,10 @@
   background: var(--bg-subtle);
   border: 1px solid var(--border-color);
   color: var(--text-muted);
-  padding: 0.3rem 0.75rem;
-  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
   font-size: 0.74rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
@@ -350,9 +360,9 @@
 
 .filterActive {
   background: var(--accent-primary-subtle);
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: var(--accent-primary);
   color: var(--accent-primary);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .tableWrapper {
@@ -366,7 +376,7 @@
 }
 
 .rulesTable th {
-  padding: 0.65rem 0.85rem;
+  padding: 0.75rem 0.95rem;
   font-size: 0.68rem;
   text-transform: uppercase;
   color: var(--text-subtle);
@@ -375,7 +385,7 @@
 }
 
 .rulesTable td {
-  padding: 0.75rem 0.85rem;
+  padding: 0.85rem 0.95rem;
   font-size: 0.78rem;
   border-bottom: 1px solid var(--border-light);
 }
@@ -390,8 +400,8 @@
 
 .codeCol code {
   background: var(--bg-elevated);
-  padding: 0.2rem 0.45rem;
-  border-radius: 4px;
+  padding: 0.25rem 0.55rem;
+  border-radius: 8px;
   font-size: 0.72rem;
   color: var(--accent-primary);
   border: 1px solid var(--border-color);
@@ -403,6 +413,7 @@
   gap: 0.4rem;
   color: var(--accent-success);
   font-size: 0.74rem;
+  font-weight: 600;
 }
 
 .liveDot {

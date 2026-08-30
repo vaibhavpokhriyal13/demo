@@ -33,10 +33,10 @@
 }
 
 .title {
-  font-size: 1.65rem;
+  font-size: 1.75rem;
   font-weight: 800;
   color: var(--text-main);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
 }
 
 .subtitle {
@@ -56,14 +56,15 @@
 .statusChip {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  padding: 0.35rem 0.85rem;
-  border-radius: 999px;
+  padding: 0.4rem 0.95rem;
+  border-radius: 9999px;
   font-size: 0.78rem;
   color: var(--text-main);
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
 .chipDot {
@@ -79,14 +80,15 @@
   animation: pulse 1.2s infinite;
 }
 
-/* Command Hub Card */
+/* Spotify-Inspired Smooth Command Hub */
 .commandHubCard {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  padding: 1.15rem 1.35rem;
+  gap: 0.95rem;
+  padding: 1.35rem 1.65rem;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
+  border-radius: 24px;
 }
 
 .presetSection {
@@ -100,7 +102,7 @@
   font-size: 0.68rem;
   font-weight: 700;
   color: var(--text-subtle);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
 }
 
 .presetChips {
@@ -113,13 +115,13 @@
   background: var(--bg-subtle);
   border: 1px solid var(--border-color);
   color: var(--text-muted);
-  padding: 0.3rem 0.75rem;
-  border-radius: 999px;
+  padding: 0.35rem 0.95rem;
+  border-radius: 9999px;
   font-size: 0.76rem;
-  font-weight: 500;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   font-family: inherit;
@@ -129,13 +131,15 @@
   border-color: var(--border-color-hover);
   color: var(--text-main);
   background: var(--bg-card-hover);
+  transform: translateY(-1px);
 }
 
 .presetActive {
   background: var(--accent-primary-subtle);
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: var(--accent-primary);
   color: var(--accent-primary);
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 2px 10px var(--accent-primary-glow);
 }
 
 .commandInputRow {
@@ -157,19 +161,20 @@
   align-items: center;
   background: var(--bg-input);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 0.2rem 0.85rem;
-  transition: all 0.2s ease;
+  border-radius: 9999px;
+  padding: 0.35rem 1.15rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .inputBox:focus-within {
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--accent-primary-subtle);
+  box-shadow: 0 0 0 4px var(--accent-primary-subtle);
+  background: var(--bg-card-solid);
 }
 
 .searchIcon {
   color: var(--text-subtle);
-  margin-right: 0.6rem;
+  margin-right: 0.65rem;
   flex-shrink: 0;
 }
 
@@ -179,7 +184,7 @@
   color: var(--text-main);
   font-size: 0.88rem;
   width: 100%;
-  padding: 0.6rem 0;
+  padding: 0.5rem 0;
   outline: none;
   font-family: inherit;
 }
@@ -199,8 +204,8 @@
   background: var(--bg-subtle);
   border: 1px solid var(--border-color);
   color: var(--text-muted);
-  padding: 0.65rem 0.85rem;
-  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  border-radius: 9999px;
   font-size: 0.8rem;
   font-weight: 600;
   display: flex;
@@ -214,30 +219,30 @@
 .optionsToggleBtn:hover {
   background: var(--bg-card-hover);
   color: var(--text-main);
+  transform: translateY(-1px);
 }
 
 .runBtn {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--accent-primary) 0%, #ea580c 100%);
   color: #ffffff !important;
   border: none;
-  border-radius: 10px;
-  padding: 0.65rem 1.25rem;
+  border-radius: 9999px;
+  padding: 0.65rem 1.4rem;
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  box-shadow: 0 4px 14px var(--accent-primary-glow);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 6px 18px var(--accent-primary-glow);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   font-family: inherit;
   white-space: nowrap;
 }
 
 .runBtn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
-  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px var(--accent-primary-glow);
 }
 
 .runBtn:disabled {
@@ -247,7 +252,7 @@
 
 .runningBtn {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  box-shadow: 0 4px 14px var(--accent-warning-glow);
+  box-shadow: 0 6px 18px var(--accent-warning-glow);
 }
 
 /* Collapsible Advanced Config Drawer */
@@ -255,7 +260,7 @@
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  padding-top: 0.75rem;
+  padding-top: 0.85rem;
   border-top: 1px solid var(--border-light);
   flex-wrap: wrap;
 }
@@ -278,8 +283,8 @@
 .pillGroup {
   display: flex;
   background: var(--bg-elevated);
-  padding: 2px;
-  border-radius: 8px;
+  padding: 3px;
+  border-radius: 9999px;
   border: 1px solid var(--border-color);
 }
 
@@ -287,8 +292,8 @@
   background: transparent;
   border: none;
   color: var(--text-subtle);
-  padding: 0.25rem 0.65rem;
-  border-radius: 6px;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
@@ -334,15 +339,15 @@
   cursor: pointer;
 }
 
-/* Stepper Pipeline */
+/* Spotify Style Smooth Stepper Rail */
 .stepperContainer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 0.65rem 1.25rem;
+  border-radius: 9999px;
+  padding: 0.65rem 1.4rem;
   overflow-x: auto;
   box-shadow: var(--card-shadow);
 }
@@ -390,7 +395,7 @@
   background: var(--accent-primary);
   border-color: var(--accent-primary);
   color: #ffffff;
-  box-shadow: 0 0 10px var(--accent-primary-glow);
+  box-shadow: 0 0 12px var(--accent-primary-glow);
   animation: pulse 1.4s infinite;
 }
 
@@ -419,10 +424,11 @@
   background: var(--border-color);
   margin: 0 0.75rem;
   min-width: 16px;
+  border-radius: 9999px;
 }
 
 .stepLineDone {
-  background: rgba(16, 185, 129, 0.4);
+  background: var(--accent-success);
 }
 
 /* 2-Column Responsive Workspace */
@@ -443,7 +449,7 @@
 .browserColumn {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
 
 .browserToolbar {
@@ -458,7 +464,7 @@
   display: flex;
   background: var(--bg-card);
   padding: 3px;
-  border-radius: 8px;
+  border-radius: 9999px;
   border: 1px solid var(--border-color);
 }
 
@@ -466,8 +472,8 @@
   background: transparent;
   border: none;
   color: var(--text-subtle);
-  padding: 0.35rem 0.75rem;
-  border-radius: 6px;
+  padding: 0.35rem 0.9rem;
+  border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
@@ -485,8 +491,7 @@
 .viewBtnActive {
   background: var(--bg-elevated);
   color: var(--text-main);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .inlineCheck {
@@ -506,14 +511,14 @@
 .browserFrame {
   background: var(--browser-frame);
   border: 1px solid var(--border-color);
-  border-radius: 14px;
+  border-radius: 20px;
   overflow: hidden;
   box-shadow: var(--card-shadow);
 }
 
 .browserFrameHeader {
   background: var(--browser-chrome);
-  padding: 0.65rem 1rem;
+  padding: 0.75rem 1.15rem;
   display: flex;
   align-items: center;
   gap: 0.85rem;
@@ -522,12 +527,12 @@
 
 .dots {
   display: flex;
-  gap: 5px;
+  gap: 6px;
 }
 
 .dots span {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   display: inline-block;
 }
@@ -540,8 +545,8 @@
   flex-grow: 1;
   background: var(--browser-url-bar);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  padding: 0.3rem 0.85rem;
   font-size: 0.72rem;
   color: var(--text-muted);
   display: flex;
@@ -551,16 +556,16 @@
 
 .sslBadge {
   font-size: 0.65rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--accent-success);
   background: var(--accent-success-subtle);
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .browserFrameContent {
-  padding: 1.25rem;
+  padding: 1.35rem;
   position: relative;
   min-height: 440px;
   display: flex;
@@ -575,15 +580,15 @@
   right: 0;
   height: 3px;
   background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
-  box-shadow: 0 0 12px var(--accent-primary);
+  box-shadow: 0 0 14px var(--accent-primary);
   animation: scanMove 1.8s infinite linear;
   z-index: 10;
 }
 
 @keyframes scanMove {
-  0% { top: 0%; opacity: 0.8; }
-  50% { top: 98%; opacity: 0.8; }
-  100% { top: 0%; opacity: 0.8; }
+  0% { top: 0%; opacity: 0.85; }
+  50% { top: 98%; opacity: 0.85; }
+  100% { top: 0%; opacity: 0.85; }
 }
 
 .cursorSim {
@@ -606,11 +611,11 @@
 .cursorLabel {
   background: var(--accent-primary);
   color: #ffffff;
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
   font-size: 0.68rem;
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .pageHeader {
@@ -622,7 +627,7 @@
 }
 
 .pageHeaderTitle h3 {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   color: var(--text-main);
   font-weight: 700;
 }
@@ -637,17 +642,17 @@
   font-weight: 800;
   color: var(--accent-primary);
   background: var(--accent-primary-subtle);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  padding: 0.2rem 0.55rem;
-  border-radius: 4px;
-  letter-spacing: 0.05em;
+  border: 1px solid rgba(255, 122, 0, 0.3);
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  letter-spacing: 0.04em;
 }
 
 .detectorSection {
   background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 1rem;
+  border-radius: 16px;
+  padding: 1.15rem;
 }
 
 .detectorSectionHeader {
@@ -683,8 +688,8 @@
 .dataFieldItem {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 0.55rem 0.75rem;
+  border-radius: 14px;
+  padding: 0.65rem 0.85rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -694,7 +699,7 @@
 
 .fieldHighlight {
   border-color: var(--accent-warning) !important;
-  box-shadow: 0 0 10px var(--accent-warning-glow);
+  box-shadow: 0 0 12px var(--accent-warning-glow);
 }
 
 .fieldLabel {
@@ -719,13 +724,13 @@
 
 .tagPii {
   position: absolute;
-  top: 0.35rem;
-  right: 0.5rem;
+  top: 0.45rem;
+  right: 0.55rem;
   font-size: 0.58rem;
   color: var(--accent-warning);
   background: var(--accent-warning-subtle);
-  padding: 0.05rem 0.35rem;
-  border-radius: 4px;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
   font-weight: 700;
 }
 
@@ -743,7 +748,7 @@
 }
 
 .actionHeader h4 {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 700;
 }
 
@@ -756,19 +761,24 @@
 .docCard {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 0.75rem 1rem;
+  border-radius: 16px;
+  padding: 0.85rem 1.15rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.docCard:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-color-hover);
 }
 
 .docCardActive {
   border-color: var(--accent-primary);
   background: var(--accent-primary-subtle);
-  box-shadow: 0 0 16px var(--accent-primary-glow);
+  box-shadow: 0 0 18px var(--accent-primary-glow);
 }
 
 .docDetails {
@@ -778,9 +788,9 @@
 }
 
 .docIconWrap {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   background: var(--bg-elevated);
   display: flex;
   align-items: center;
@@ -789,7 +799,7 @@
 }
 
 .docTitle {
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   font-weight: 600;
   color: var(--text-main);
 }
@@ -809,20 +819,22 @@
   background: var(--accent-primary);
   color: #ffffff;
   border: none;
-  border-radius: 6px;
-  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  padding: 0.45rem 1rem;
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.35rem;
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
+  box-shadow: 0 2px 8px var(--accent-primary-glow);
 }
 
 .actionDownloadBtn:hover {
   background: var(--accent-primary-hover);
+  transform: scale(1.03);
 }
 
 .btnExecuting {
@@ -834,10 +846,10 @@
   background: var(--bg-elevated);
   color: var(--text-muted);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  padding: 0.45rem 1rem;
   font-size: 0.78rem;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.35rem;
@@ -849,14 +861,15 @@
 .actionDownloadBtnSecondary:hover {
   background: var(--bg-card-hover);
   color: var(--text-main);
+  transform: scale(1.02);
 }
 
 .canvasButtonSim {
   background: var(--accent-warning-subtle);
   border: 1px dashed var(--accent-warning);
   color: var(--accent-warning);
-  padding: 0.4rem 0.75rem;
-  border-radius: 6px;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
   font-size: 0.72rem;
   font-weight: 600;
 }
@@ -868,7 +881,7 @@
   gap: 0.75rem;
 }
 
-/* Quick HUD */
+/* Quick HUD - Full Capsule Pills */
 .quickHud {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -878,13 +891,18 @@
 .hudPill {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 0.65rem 0.85rem;
+  border-radius: 9999px;
+  padding: 0.65rem 1rem;
   display: flex;
   align-items: center;
   gap: 0.6rem;
   backdrop-filter: blur(14px);
   box-shadow: var(--card-shadow);
+  transition: all 0.2s ease;
+}
+
+.hudPill:hover {
+  transform: translateY(-1px);
 }
 
 .hudLabel {
@@ -909,14 +927,15 @@
   padding: 0;
   overflow: hidden;
   background: var(--bg-card);
+  border-radius: 20px;
 }
 
 .inspectorTabBar {
   display: flex;
   background: var(--bg-elevated);
   border-bottom: 1px solid var(--border-color);
-  padding: 0.35rem 0.5rem;
-  gap: 0.35rem;
+  padding: 0.45rem 0.65rem;
+  gap: 0.45rem;
 }
 
 .inspectorTabBtn {
@@ -925,13 +944,13 @@
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  padding: 0.55rem 0.65rem;
+  padding: 0.55rem 0.85rem;
   background: transparent;
   border: none;
   color: var(--text-muted);
   font-size: 0.78rem;
-  font-weight: 600;
-  border-radius: 8px;
+  font-weight: 700;
+  border-radius: 9999px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   font-family: inherit;
@@ -945,8 +964,7 @@
 .tabActive {
   background: var(--bg-card);
   color: var(--text-main);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .logCountBadge {
@@ -955,11 +973,11 @@
   font-size: 0.6rem;
   font-weight: 700;
   padding: 0.1rem 0.35rem;
-  border-radius: 999px;
+  border-radius: 9999px;
 }
 
 .tabPane {
-  padding: 1.15rem;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 1.15rem;
@@ -973,7 +991,7 @@
 }
 
 .paneTitle {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--text-main);
 }
@@ -987,10 +1005,10 @@
   background: var(--bg-elevated);
   border: 1px solid var(--border-color);
   color: var(--text-muted);
-  padding: 0.25rem 0.6rem;
-  border-radius: 6px;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.35rem;
@@ -1002,6 +1020,7 @@
 .copyJsonBtn:hover {
   background: var(--bg-card-hover);
   color: var(--text-main);
+  transform: translateY(-1px);
 }
 
 /* Trace Timeline */
@@ -1014,13 +1033,13 @@
 .traceStep {
   background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 14px;
   overflow: hidden;
   transition: all 0.2s ease;
 }
 
 .traceStepTop {
-  padding: 0.6rem 0.85rem;
+  padding: 0.65rem 0.95rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1060,9 +1079,10 @@
 .traceBadge {
   font-size: 0.65rem;
   background: var(--bg-subtle);
-  padding: 0.15rem 0.45rem;
-  border-radius: 4px;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
   color: var(--text-muted);
+  font-weight: 600;
 }
 
 .trace_active {
@@ -1094,7 +1114,7 @@
 }
 
 .traceDetailBox {
-  padding: 0.55rem 0.85rem;
+  padding: 0.65rem 0.95rem;
   border-top: 1px solid var(--border-color);
   background: var(--bg-card);
   font-size: 0.72rem;
@@ -1106,8 +1126,8 @@
   background: var(--accent-warning-subtle);
   border: 1px solid rgba(245, 158, 11, 0.3);
   color: var(--accent-warning);
-  padding: 0.5rem 0.85rem;
-  border-radius: 8px;
+  padding: 0.55rem 0.95rem;
+  border-radius: 9999px;
   font-size: 0.74rem;
   font-weight: 600;
   display: flex;
@@ -1129,7 +1149,7 @@
 }
 
 .sectionHeading {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 700;
   color: var(--text-main);
 }
@@ -1138,11 +1158,11 @@
 .budgetGaugeContainer {
   background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 0.85rem;
+  border-radius: 16px;
+  padding: 0.95rem;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.65rem;
 }
 
 .gaugeHeader {
@@ -1162,14 +1182,14 @@
 .progressBar {
   height: 6px;
   background: var(--border-color);
-  border-radius: 999px;
+  border-radius: 9999px;
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
   background: linear-gradient(90deg, var(--accent-success), var(--accent-primary));
-  border-radius: 999px;
+  border-radius: 9999px;
   transition: width 0.5s ease;
 }
 
@@ -1206,8 +1226,8 @@
 .engineCol {
   background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 0.75rem;
+  border-radius: 16px;
+  padding: 0.85rem;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -1243,8 +1263,8 @@
 .routingStatBox {
   background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 0.6rem;
+  border-radius: 14px;
+  padding: 0.7rem;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
@@ -1259,8 +1279,8 @@
 .liveLogBox {
   background: var(--terminal-bg);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
-  padding: 0.75rem;
+  border-radius: 16px;
+  padding: 0.85rem;
   max-height: 200px;
   overflow-y: auto;
   display: flex;
@@ -1303,8 +1323,8 @@
 .memoryItem {
   background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+  padding: 0.55rem 0.85rem;
   display: flex;
   justify-content: space-between;
   font-size: 0.72rem;
