@@ -19,7 +19,10 @@ import {
   Sparkles,
   Copy,
   Check,
-  Search
+  Search,
+  Terminal,
+  Activity,
+  Sliders
 } from 'lucide-react';
 import styles from './BrowserAgentPage.module.css';
 
@@ -28,7 +31,7 @@ export default function BrowserAgentPage() {
   const scenarios = [
     {
       id: 'report',
-      title: 'Download Annual Project Report',
+      title: 'Annual Project Report',
       task: 'Find the project report and download it',
       canvas: false,
       risk: { tier: 'MEDIUM', score: 0.42, reason: 'Verified Gov.in PDF download' },
@@ -37,7 +40,7 @@ export default function BrowserAgentPage() {
     },
     {
       id: 'finance',
-      title: 'Export Financial Audit (High PII)',
+      title: 'Financial Audit Export',
       task: 'Export Q4 Financial Expenditure and balance sheet',
       canvas: false,
       risk: { tier: 'MEDIUM', score: 0.48, reason: 'Financial tabular data export' },
@@ -46,7 +49,7 @@ export default function BrowserAgentPage() {
     },
     {
       id: 'canvas',
-      title: 'Canvas Control (Adaptive Vision)',
+      title: 'Canvas Control (Vision)',
       task: 'Locate visual action button on graphical canvas',
       canvas: true,
       risk: { tier: 'LOW', score: 0.18, reason: 'Visual map coordinate inspection' },
@@ -63,8 +66,10 @@ export default function BrowserAgentPage() {
   const [simulateSelfCorrection, setSimulateSelfCorrection] = useState(false);
   const [simulateCanvasTarget, setSimulateCanvasTarget] = useState(false);
   const [copiedTrace, setCopiedTrace] = useState(false);
+  const [showAdvancedControls, setShowAdvancedControls] = useState(false);
+  const [activeInspectorTab, setActiveInspectorTab] = useState('trace'); // 'trace', 'security', 'logs'
   
-  // Roadmap Feature 1: Privacy Firewall & Privacy Budget
+  // Privacy Firewall & Privacy Budget
   const [privacyMode, setPrivacyMode] = useState('balanced'); // strict, balanced, automation
   const [privacyBudget, setPrivacyBudget] = useState({
     totalBytesCaptured: 1680,
@@ -74,11 +79,11 @@ export default function BrowserAgentPage() {
     allowedTokens: 11
   });
 
-  // Roadmap Feature 2: Adaptive Perception
+  // Adaptive Perception
   const [perceptionMode, setPerceptionMode] = useState('DOM_FIRST'); // DOM_FIRST, VISION_ONNX
   const [perceptionTimeMs, setPerceptionTimeMs] = useState(14);
 
-  // Roadmap Feature 3: Action Risk Engine
+  // Action Risk Engine
   const [actionRisk, setActionRisk] = useState({
     tier: 'MEDIUM',
     score: 0.42,
@@ -86,11 +91,11 @@ export default function BrowserAgentPage() {
     autoVerified: true
   });
 
-  // Roadmap Feature 4: Confidence-Aware Agent
+  // Confidence-Aware Agent
   const [confidenceScore, setConfidenceScore] = useState(96);
   const [ambiguityLevel, setAmbiguityLevel] = useState('LOW');
 
-  // Roadmap Feature 5: Explainable Action Trace
+  // Explainable Action Trace
   const [traceSteps, setTraceSteps] = useState([
     {
       id: 'OBSERVE',
@@ -148,17 +153,17 @@ export default function BrowserAgentPage() {
     }
   ]);
 
-  // Roadmap Feature 6: Self-Correction Loop State
+  // Self-Correction Loop State
   const [correctionAttempts, setCorrectionAttempts] = useState(0);
 
-  // Roadmap Feature 7: Intelligent Local/Cloud Routing State
+  // Intelligent Local/Cloud Routing State
   const [routingStats, setRoutingStats] = useState({
     localPerceptionDuration: '14ms',
     cloudReasoningDuration: '280ms',
     contextMinimizedPercent: '91.5%'
   });
 
-  // Roadmap Feature 9: Task Memory
+  // Task Memory
   const [taskMemory] = useState([
     { key: 'Preferred File Format', value: 'PDF Document (.pdf)' },
     { key: 'Target Save Location', value: '/Reports/2026/' },
@@ -239,6 +244,9 @@ export default function BrowserAgentPage() {
     setLogs([]);
     setCorrectionAttempts(0);
     setTraceSteps(prev => prev.map(s => ({ ...s, status: 'pending' })));
+
+    // Switch to trace tab automatically so the user sees live execution
+    setActiveInspectorTab('trace');
 
     // STEP 1: Adaptive Perception (DOM vs Local Vision)
     setAgentState('OBSERVE');
@@ -371,15 +379,15 @@ export default function BrowserAgentPage() {
 
   return (
     <div className={styles.container}>
-      {/* Top Header */}
+      {/* Top Header Bar */}
       <div className={styles.header}>
-        <div>
+        <div className={styles.headerLeft}>
           <div className={styles.titleRow}>
             <h2 className={styles.title}>AI Browser Agent</h2>
-            <span className="badge primary">SIH26171 Execution Sandbox</span>
+            <span className="badge primary">SIH26171 Sandbox</span>
           </div>
           <p className={styles.subtitle}>
-            On-device visual perception, local privacy firewall, risk validation, and explainable action tracing.
+            On-device visual perception &bull; Local PII firewall &bull; Risk validation &bull; Explainable action trace
           </p>
         </div>
 
@@ -393,145 +401,157 @@ export default function BrowserAgentPage() {
           <div className={styles.perceptionChip}>
             {perceptionMode === 'DOM_FIRST' ? (
               <span className="badge success">
-                <Zap size={13} /> DOM Fast-Path ({perceptionTimeMs}ms)
+                <Zap size={12} /> Fast-Path ({perceptionTimeMs}ms)
               </span>
             ) : (
               <span className="badge warning">
-                <Eye size={13} /> Local Vision ONNX ({perceptionTimeMs}ms)
+                <Eye size={12} /> ONNX Vision ({perceptionTimeMs}ms)
               </span>
             )}
           </div>
         </div>
       </div>
 
-      {/* Preset Scenario Selector Buttons */}
-      <div className={styles.scenarioBar}>
-        <span className={styles.scenarioLabel}>QUICK TEST PRESETS:</span>
-        <div className={styles.scenarioChips}>
-          {scenarios.map((sc) => (
-            <button
-              key={sc.id}
-              className={`${styles.scenarioBtn} ${activeScenario === sc.id ? styles.scenarioActive : ''}`}
-              onClick={() => handleSelectScenario(sc)}
+      {/* Unified Command & Scenario Bar */}
+      <div className={`card ${styles.commandHubCard}`}>
+        {/* Preset scenario selection pills */}
+        <div className={styles.presetSection}>
+          <span className={styles.presetLabel}>PRESETS:</span>
+          <div className={styles.presetChips}>
+            {scenarios.map((sc) => (
+              <button
+                key={sc.id}
+                className={`${styles.presetBtn} ${activeScenario === sc.id ? styles.presetActive : ''}`}
+                onClick={() => handleSelectScenario(sc)}
+                disabled={isRunning}
+              >
+                <Sparkles size={12} />
+                <span>{sc.title}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Input Row */}
+        <div className={styles.commandInputRow}>
+          <div className={styles.inputBox}>
+            <Search size={16} className={styles.searchIcon} />
+            <input 
+              type="text" 
+              className={styles.taskInput}
+              value={task} 
+              onChange={(e) => setTask(e.target.value)}
+              disabled={isRunning}
+              placeholder="Enter instructions (e.g. Find project report and download it)"
+            />
+          </div>
+
+          <div className={styles.commandActions}>
+            <button 
+              className={styles.optionsToggleBtn}
+              onClick={() => setShowAdvancedControls(!showAdvancedControls)}
+              title="Configure Privacy Mode & Simulation Switches"
+            >
+              <Sliders size={15} />
+              <span>Config</span>
+              {showAdvancedControls ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+            </button>
+
+            <button 
+              className={`${styles.runBtn} ${isRunning ? styles.runningBtn : ''}`}
+              onClick={runAgent}
               disabled={isRunning}
             >
-              <Sparkles size={13} />
-              <span>{sc.title}</span>
+              {isRunning ? (
+                <>
+                  <Zap className="processing-pulse" size={16} />
+                  Running...
+                </>
+              ) : (
+                <>
+                  <Play size={16} fill="currentColor" />
+                  Execute Agent
+                </>
+              )}
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Task Input & Control Bar */}
-      <div className={`card ${styles.taskCard}`}>
-        <div className={styles.taskBarRow}>
-          <div className={styles.inputWrapper}>
-            <label className={styles.inputLabel}>Agent Instructions &amp; Intent Goal</label>
-            <div className={styles.inputIconGroup}>
-              <Search size={17} className={styles.searchIcon} />
-              <input 
-                type="text" 
-                className={styles.taskInput}
-                value={task} 
-                onChange={(e) => setTask(e.target.value)}
-                disabled={isRunning}
-                placeholder="E.g. Find the project report and download it"
-              />
-            </div>
           </div>
-
-          <button 
-            className={`${styles.runBtn} ${isRunning ? styles.runningBtn : ''}`}
-            onClick={runAgent}
-            disabled={isRunning}
-          >
-            {isRunning ? (
-              <>
-                <Zap className="processing-pulse" size={18} />
-                Executing Pipeline...
-              </>
-            ) : (
-              <>
-                <Play size={18} fill="currentColor" />
-                Run Browser Agent
-              </>
-            )}
-          </button>
         </div>
 
-        {/* Interactive Feature Controls Bar */}
-        <div className={styles.featureControlsBar}>
-          {/* Privacy Firewall Mode Switcher */}
-          <div className={styles.controlGroup}>
-            <span className={styles.controlLabel}>
-              <Lock size={13} /> Privacy Firewall:
-            </span>
-            <div className={styles.pillGroup}>
-              {['strict', 'balanced', 'automation'].map((mode) => (
-                <button
-                  key={mode}
-                  className={`${styles.pillBtn} ${privacyMode === mode ? styles.activePill : ''}`}
-                  onClick={() => setPrivacyMode(mode)}
+        {/* Collapsible Advanced Config Drawer */}
+        {showAdvancedControls && (
+          <div className={`${styles.advancedConfigDrawer} fade-in`}>
+            {/* Privacy Mode Switcher */}
+            <div className={styles.drawerGroup}>
+              <span className={styles.drawerGroupLabel}>
+                <Lock size={13} color="var(--accent-primary)" /> Privacy Firewall:
+              </span>
+              <div className={styles.pillGroup}>
+                {['strict', 'balanced', 'automation'].map((mode) => (
+                  <button
+                    key={mode}
+                    className={`${styles.pillBtn} ${privacyMode === mode ? styles.activePill : ''}`}
+                    onClick={() => setPrivacyMode(mode)}
+                    disabled={isRunning}
+                  >
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.drawerDivider}></div>
+
+            {/* Interactive Simulation Switches */}
+            <div className={styles.drawerToggles}>
+              <label className={styles.toggleItem}>
+                <input 
+                  type="checkbox" 
+                  checked={simulateSelfCorrection}
+                  onChange={(e) => setSimulateSelfCorrection(e.target.checked)}
                   disabled={isRunning}
-                >
-                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                </button>
-              ))}
+                />
+                <RefreshCw size={12} />
+                <span>Simulate Self-Correction</span>
+              </label>
+
+              <label className={styles.toggleItem}>
+                <input 
+                  type="checkbox" 
+                  checked={simulateCanvasTarget}
+                  onChange={(e) => setSimulateCanvasTarget(e.target.checked)}
+                  disabled={isRunning}
+                />
+                <Eye size={12} />
+                <span>Simulate Canvas/Visual Target</span>
+              </label>
             </div>
           </div>
-
-          {/* Interactive Demos Toggles */}
-          <div className={styles.togglesGroup}>
-            <label className={styles.toggleLabel}>
-              <input 
-                type="checkbox" 
-                checked={simulateSelfCorrection}
-                onChange={(e) => setSimulateSelfCorrection(e.target.checked)}
-                disabled={isRunning}
-              />
-              <RefreshCw size={13} />
-              <span>Simulate Self-Correction</span>
-            </label>
-
-            <label className={styles.toggleLabel}>
-              <input 
-                type="checkbox" 
-                checked={simulateCanvasTarget}
-                onChange={(e) => setSimulateCanvasTarget(e.target.checked)}
-                disabled={isRunning}
-              />
-              <Eye size={13} />
-              <span>Simulate Canvas/Visual Button</span>
-            </label>
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Visual Pipeline Progression Stepper */}
-      <div className={`card ${styles.stepperCard}`}>
-        <div className={styles.stepperContainer}>
-          {traceSteps.map((st, i) => {
-            const isDone = st.status === 'completed';
-            const isActive = st.status === 'active';
-            return (
-              <React.Fragment key={st.id}>
-                <div className={`${styles.stepperItem} ${isActive ? styles.stepActive : ''} ${isDone ? styles.stepDone : ''}`}>
-                  <div className={styles.stepCircle}>
-                    {isDone ? <Check size={13} /> : <span>{st.num}</span>}
-                  </div>
-                  <div className={styles.stepInfo}>
-                    <span className={styles.stepName}>{st.label}</span>
-                    <span className={styles.stepSubBadge}>{st.badge}</span>
-                  </div>
+      {/* Sleek Horizontal Stepper Pipeline */}
+      <div className={styles.stepperContainer}>
+        {traceSteps.map((st, i) => {
+          const isDone = st.status === 'completed';
+          const isActive = st.status === 'active';
+          return (
+            <React.Fragment key={st.id}>
+              <div className={`${styles.stepperItem} ${isActive ? styles.stepActive : ''} ${isDone ? styles.stepDone : ''}`}>
+                <div className={styles.stepCircle}>
+                  {isDone ? <Check size={12} /> : <span>{st.num}</span>}
                 </div>
-                {i < traceSteps.length - 1 && <div className={`${styles.stepLine} ${isDone ? styles.stepLineDone : ''}`}></div>}
-              </React.Fragment>
-            );
-          })}
-        </div>
+                <div className={styles.stepInfo}>
+                  <span className={styles.stepName}>{st.label}</span>
+                  <span className={styles.stepSubBadge}>{st.badge}</span>
+                </div>
+              </div>
+              {i < traceSteps.length - 1 && <div className={`${styles.stepLine} ${isDone ? styles.stepLineDone : ''}`}></div>}
+            </React.Fragment>
+          );
+        })}
       </div>
 
-      {/* Main 2-Column Responsive Workspace */}
+      {/* Main Segregated 2-Column Responsive Workspace */}
       <div className={styles.mainWorkspace}>
         {/* Left Column: Simulated Browser Window */}
         <div className={styles.browserColumn}>
@@ -542,32 +562,30 @@ export default function BrowserAgentPage() {
                 className={`${styles.viewBtn} ${sanitizedView ? styles.viewBtnActive : ''}`}
                 onClick={() => setSanitizedView(true)}
               >
-                <ShieldCheck size={14} color="var(--accent-success)" />
-                Sanitized View (Agent View)
+                <ShieldCheck size={13} color="var(--accent-success)" />
+                Sanitized (Safe View)
               </button>
               <button 
                 className={`${styles.viewBtn} ${!sanitizedView ? styles.viewBtnActive : ''}`}
                 onClick={() => setSanitizedView(false)}
               >
-                Original Raw Page
+                Raw Page View
               </button>
             </div>
 
-            <div className={styles.browserQuickStats}>
-              <label className={styles.inlineCheck}>
-                <input 
-                  type="checkbox" 
-                  checked={highlightSensitives}
-                  onChange={(e) => setHighlightSensitives(e.target.checked)}
-                />
-                Show Detector Bounds
-              </label>
-            </div>
+            <label className={styles.inlineCheck}>
+              <input 
+                type="checkbox" 
+                checked={highlightSensitives}
+                onChange={(e) => setHighlightSensitives(e.target.checked)}
+              />
+              Show PII Bounds
+            </label>
           </div>
 
           {/* Mock Browser Frame */}
           <div className={styles.browserFrame}>
-            {/* Mac/Chrome Window Header */}
+            {/* Window Header */}
             <div className={styles.browserFrameHeader}>
               <div className={styles.dots}>
                 <span></span>
@@ -575,7 +593,7 @@ export default function BrowserAgentPage() {
                 <span></span>
               </div>
               <div className={styles.urlBar}>
-                <Lock size={12} color="#10b981" />
+                <Lock size={11} color="#10b981" />
                 <span>https://gov.in/portal/infrastructure/reports</span>
               </div>
               <span className={styles.sslBadge}>Protected Context</span>
@@ -590,9 +608,9 @@ export default function BrowserAgentPage() {
               {/* Cursor Simulation during execution */}
               {(agentState === 'EXECUTE') && (
                 <div className={styles.cursorSim}>
-                  <MousePointer2 size={26} fill="#3b82f6" color="#ffffff" />
+                  <MousePointer2 size={24} fill="#3b82f6" color="#ffffff" />
                   <span className={styles.cursorLabel}>
-                    {simulateSelfCorrection && correctionAttempts === 1 ? 'Retrying Alternative...' : 'Clicking Verified Target'}
+                    {simulateSelfCorrection && correctionAttempts === 1 ? 'Retrying Alternate Selector...' : 'Clicking Target'}
                   </span>
                 </div>
               )}
@@ -610,8 +628,8 @@ export default function BrowserAgentPage() {
               <div className={styles.detectorSection}>
                 <div className={styles.detectorSectionHeader}>
                   <span className={styles.detectorTitle}>
-                    <Fingerprint size={16} color="var(--accent-primary)" />
-                    Project Metadata (PII Firewall Interception Active)
+                    <Fingerprint size={15} color="var(--accent-primary)" />
+                    Project Metadata (Firewall Active)
                   </span>
                   <div className={styles.detectorBadgesList}>
                     <span className="badge warning">■ Aadhaar Masked</span>
@@ -634,33 +652,33 @@ export default function BrowserAgentPage() {
                   <div className={`${styles.dataFieldItem} ${highlightSensitives && agentState === 'DETECT' ? styles.fieldHighlight : ''}`}>
                     <span className={styles.fieldLabel}>Contact Phone:</span>
                     {sanitizedView ? (
-                      <span className="redacted-block" style={{ width: '130px' }}></span>
+                      <span className="redacted-block" style={{ width: '110px' }}></span>
                     ) : (
                       <span className={styles.rawPii}>+91 98765 43210</span>
                     )}
-                    <span className={styles.tagPii}>PII: Phone</span>
+                    <span className={styles.tagPii}>Phone</span>
                   </div>
 
                   {/* PII Field 2: Aadhaar Number */}
                   <div className={`${styles.dataFieldItem} ${highlightSensitives && agentState === 'DETECT' ? styles.fieldHighlight : ''}`}>
                     <span className={styles.fieldLabel}>Gov ID / Aadhaar:</span>
                     {sanitizedView ? (
-                      <span className="redacted-block" style={{ width: '150px' }}></span>
+                      <span className="redacted-block" style={{ width: '130px' }}></span>
                     ) : (
                       <span className={styles.rawPii}>4321 8765 1098</span>
                     )}
-                    <span className={styles.tagPii}>PII: Gov ID</span>
+                    <span className={styles.tagPii}>Gov ID</span>
                   </div>
 
                   {/* PII Field 3: Email */}
                   <div className={`${styles.dataFieldItem} ${highlightSensitives && agentState === 'DETECT' ? styles.fieldHighlight : ''}`}>
                     <span className={styles.fieldLabel}>Email Address:</span>
                     {sanitizedView ? (
-                      <span className="redacted-block" style={{ width: '160px' }}></span>
+                      <span className="redacted-block" style={{ width: '140px' }}></span>
                     ) : (
                       <span className={styles.rawPii}>vaibhav.sharma@gov.in</span>
                     )}
-                    <span className={styles.tagPii}>PII: Email</span>
+                    <span className={styles.tagPii}>Email</span>
                   </div>
 
                   <div className={styles.dataFieldItem}>
@@ -673,7 +691,7 @@ export default function BrowserAgentPage() {
               {/* Action Target Section: Documents List */}
               <div className={styles.actionSection}>
                 <div className={styles.actionHeader}>
-                  <FileText size={18} color="var(--accent-primary)" />
+                  <FileText size={16} color="var(--accent-primary)" />
                   <h4>Target Documents &amp; Exports</h4>
                 </div>
 
@@ -682,31 +700,31 @@ export default function BrowserAgentPage() {
                   <div className={`${styles.docCard} ${agentState === 'EXECUTE' || agentState === 'COMPLETED' ? styles.docCardActive : ''}`}>
                     <div className={styles.docDetails}>
                       <div className={styles.docIconWrap}>
-                        <FileDown size={20} color="var(--accent-primary)" />
+                        <FileDown size={18} color="var(--accent-primary)" />
                       </div>
                       <div>
                         <div className={styles.docTitle}>Project_Report.pdf</div>
-                        <div className={styles.docMeta}>Annual Comprehensive Audit (2.4 MB) • Public</div>
+                        <div className={styles.docMeta}>Annual Comprehensive Audit (2.4 MB) &bull; Public</div>
                       </div>
                     </div>
 
                     <div className={styles.docActionArea}>
                       {simulateCanvasTarget ? (
                         <div className={styles.canvasButtonSim}>
-                          <span>[Canvas Rendered Button]</span>
+                          <span>[Canvas Action Target]</span>
                         </div>
                       ) : (
                         <button 
                           id="download-btn-1"
                           className={`${styles.actionDownloadBtn} ${agentState === 'EXECUTE' || agentState === 'COMPLETED' ? styles.btnExecuting : ''}`}
                         >
-                          <FileDown size={15} />
+                          <FileDown size={14} />
                           Download PDF
                         </button>
                       )}
                       
                       {agentState === 'VALIDATE' && (
-                        <span className="badge warning">Risk: Validating...</span>
+                        <span className="badge warning">Validating Risk...</span>
                       )}
                     </div>
                   </div>
@@ -715,7 +733,7 @@ export default function BrowserAgentPage() {
                   <div className={styles.docCard}>
                     <div className={styles.docDetails}>
                       <div className={styles.docIconWrap}>
-                        <FileDown size={20} color="var(--text-muted)" />
+                        <FileDown size={18} color="var(--text-muted)" />
                       </div>
                       <div>
                         <div className={styles.docTitle}>Financial_Quarterly_Report.pdf</div>
@@ -723,24 +741,7 @@ export default function BrowserAgentPage() {
                       </div>
                     </div>
                     <button className={styles.actionDownloadBtnSecondary}>
-                      <FileDown size={15} />
-                      Download PDF
-                    </button>
-                  </div>
-
-                  {/* Target 3: Schedule */}
-                  <div className={styles.docCard}>
-                    <div className={styles.docDetails}>
-                      <div className={styles.docIconWrap}>
-                        <FileDown size={20} color="var(--text-muted)" />
-                      </div>
-                      <div>
-                        <div className={styles.docTitle}>Project_Milestone_Schedule.pdf</div>
-                        <div className={styles.docMeta}>Gantt Timeline &amp; Roadmaps (850 KB)</div>
-                      </div>
-                    </div>
-                    <button className={styles.actionDownloadBtnSecondary}>
-                      <FileDown size={15} />
+                      <FileDown size={14} />
                       Download PDF
                     </button>
                   </div>
@@ -750,196 +751,254 @@ export default function BrowserAgentPage() {
           </div>
         </div>
 
-        {/* Right Column: Roadmap Intelligence Panels */}
+        {/* Right Column: Segregated Tabbed Intelligence Inspector */}
         <div className={styles.intelligenceColumn}>
-          {/* Panel 1: Privacy Firewall & Budget Metric */}
-          <div className={`card ${styles.metricCard}`}>
-            <div className={styles.cardHeaderWithIcon}>
-              <ShieldCheck size={20} color="var(--accent-success)" />
+          {/* Top Quick Telemetry HUD (3 Instant Metrics) */}
+          <div className={styles.quickHud}>
+            <div className={styles.hudPill}>
+              <ShieldCheck size={14} color="var(--accent-success)" />
               <div>
-                <h4 className={styles.cardHeaderTitle}>Privacy Firewall &amp; Budget</h4>
-                <p className={styles.cardHeaderSub}>Real-time on-device context minimization</p>
+                <span className={styles.hudLabel}>Privacy Saved</span>
+                <span className={styles.hudVal} style={{ color: 'var(--accent-success)' }}>{privacyBudget.percentProtected}%</span>
               </div>
             </div>
 
-            <div className={styles.budgetGaugeContainer}>
-              <div className={styles.gaugeHeader}>
-                <span>Protected Context Ratio</span>
-                <strong className={styles.gaugeValue}>{privacyBudget.percentProtected}%</strong>
+            <div className={styles.hudPill}>
+              <SlidersHorizontal size={14} color="var(--accent-warning)" />
+              <div>
+                <span className={styles.hudLabel}>Risk Tier</span>
+                <span className={styles.hudVal} style={{ color: '#fbbf24' }}>{actionRisk.tier} ({actionRisk.score})</span>
               </div>
-              <div className={styles.progressBar}>
-                <div 
-                  className={styles.progressFill} 
-                  style={{ width: `${privacyBudget.percentProtected}%` }}
-                ></div>
-              </div>
-              <div className={styles.budgetBreakdownRow}>
-                <div>
-                  <span className={styles.subText}>Captured</span>
-                  <strong>{privacyBudget.totalBytesCaptured} B</strong>
-                </div>
-                <div>
-                  <span className={styles.subText}>Transmitted</span>
-                  <strong style={{ color: 'var(--accent-primary)' }}>{privacyBudget.bytesTransmitted} B</strong>
-                </div>
-                <div>
-                  <span className={styles.subText}>PII Blocked</span>
-                  <strong style={{ color: 'var(--accent-warning)' }}>{privacyBudget.sensitiveBlocked} items</strong>
-                </div>
+            </div>
+
+            <div className={styles.hudPill}>
+              <Zap size={14} color="var(--accent-primary)" />
+              <div>
+                <span className={styles.hudLabel}>Confidence</span>
+                <span className={styles.hudVal} style={{ color: 'var(--accent-primary)' }}>{confidenceScore}%</span>
               </div>
             </div>
           </div>
 
-          {/* Panel 2: Action Risk & Confidence Engine */}
-          <div className={`card ${styles.metricCard}`}>
-            <div className={styles.cardHeaderWithIcon}>
-              <SlidersHorizontal size={20} color="var(--accent-primary)" />
-              <div>
-                <h4 className={styles.cardHeaderTitle}>Risk &amp; Confidence Engine</h4>
-                <p className={styles.cardHeaderSub}>Safety validation before browser execution</p>
-              </div>
+          {/* Inspector Segmented Tab Navigation */}
+          <div className={`card ${styles.inspectorCard}`}>
+            <div className={styles.inspectorTabBar}>
+              <button 
+                className={`${styles.inspectorTabBtn} ${activeInspectorTab === 'trace' ? styles.tabActive : ''}`}
+                onClick={() => setActiveInspectorTab('trace')}
+              >
+                <Layers size={14} />
+                <span>Action Trace</span>
+              </button>
+
+              <button 
+                className={`${styles.inspectorTabBtn} ${activeInspectorTab === 'security' ? styles.tabActive : ''}`}
+                onClick={() => setActiveInspectorTab('security')}
+              >
+                <ShieldCheck size={14} />
+                <span>Privacy &amp; Risk</span>
+              </button>
+
+              <button 
+                className={`${styles.inspectorTabBtn} ${activeInspectorTab === 'logs' ? styles.tabActive : ''}`}
+                onClick={() => setActiveInspectorTab('logs')}
+              >
+                <Terminal size={14} />
+                <span>Logs &amp; Memory</span>
+                {logs.length > 0 && <span className={styles.logCountBadge}>{logs.length}</span>}
+              </button>
             </div>
 
-            <div className={styles.dualEngineGrid}>
-              <div className={styles.engineCol}>
-                <span className={styles.engineLabel}>Action Risk Tier</span>
-                <div className={styles.engineBadgeRow}>
-                  <span className={`badge risk-${actionRisk.tier.toLowerCase()}`}>
-                    {actionRisk.tier} RISK ({actionRisk.score})
-                  </span>
-                </div>
-                <p className={styles.engineSub}>{actionRisk.reason}</p>
-              </div>
-
-              <div className={styles.engineCol}>
-                <span className={styles.engineLabel}>Agent Confidence</span>
-                <div className={styles.engineBadgeRow}>
-                  <span className={`badge ${confidenceScore > 90 ? 'success' : 'warning'}`}>
-                    {confidenceScore}% Confidence
-                  </span>
-                  <span className="badge primary" style={{ fontSize: '0.65rem' }}>
-                    {ambiguityLevel} Ambiguity
-                  </span>
-                </div>
-                <p className={styles.engineSub}>
-                  {confidenceScore > 90 ? '⚡ Direct Execute (>90%)' : '🔍 Evidence Verification'}
-                </p>
-              </div>
-            </div>
-
-            {simulateSelfCorrection && correctionAttempts > 0 && (
-              <div className={styles.selfCorrectionNotice}>
-                <RefreshCw size={14} className="processing-pulse" />
-                <span>Self-Correction Loop: Attempt #{correctionAttempts} verified successfully</span>
-              </div>
-            )}
-          </div>
-
-          {/* Panel 3: Intelligent Local/Cloud Routing */}
-          <div className={`card ${styles.metricCard}`}>
-            <div className={styles.cardHeaderWithIcon}>
-              <Cpu size={20} color="var(--accent-primary)" />
-              <div>
-                <h4 className={styles.cardHeaderTitle}>Intelligent Local/Cloud Routing</h4>
-                <p className={styles.cardHeaderSub}>Hybrid processing &amp; zero-PII cloud transmission</p>
-              </div>
-            </div>
-
-            <div className={styles.routingStatsRow}>
-              <div className={styles.routingStatBox}>
-                <span className={styles.subText}>Local ONNX Perception</span>
-                <strong style={{ color: 'var(--accent-primary)' }}>{routingStats.localPerceptionDuration}</strong>
-              </div>
-              <div className={styles.routingStatBox}>
-                <span className={styles.subText}>Cloud LLM Reasoning</span>
-                <strong style={{ color: 'var(--accent-purple)' }}>{routingStats.cloudReasoningDuration}</strong>
-              </div>
-              <div className={styles.routingStatBox}>
-                <span className={styles.subText}>Context Saved</span>
-                <strong style={{ color: 'var(--accent-success)' }}>{routingStats.contextMinimizedPercent}</strong>
-              </div>
-            </div>
-          </div>
-
-          {/* Panel 4: Explainable Action Trace */}
-          <div className={`card ${styles.traceCard}`}>
-            <div className={styles.cardHeaderWithIcon}>
-              <Layers size={20} color="var(--accent-purple)" />
-              <div style={{ flexGrow: 1 }}>
-                <div className={styles.traceHeaderTop}>
-                  <h4 className={styles.cardHeaderTitle}>Explainable Action Trace</h4>
+            {/* TAB CONTENT 1: ACTION TRACE */}
+            {activeInspectorTab === 'trace' && (
+              <div className={`${styles.tabPane} fade-in`}>
+                <div className={styles.paneHeaderRow}>
+                  <div>
+                    <h4 className={styles.paneTitle}>Explainable Execution Pipeline</h4>
+                    <p className={styles.paneSub}>Transparent 6-stage autonomous decision trail</p>
+                  </div>
                   <button className={styles.copyJsonBtn} onClick={copyTraceJson}>
                     {copiedTrace ? <Check size={12} /> : <Copy size={12} />}
                     <span>{copiedTrace ? 'Copied' : 'JSON'}</span>
                   </button>
                 </div>
-                <p className={styles.cardHeaderSub}>Transparent 6-stage execution pipeline</p>
-              </div>
-            </div>
 
-            <div className={styles.traceTimeline}>
-              {traceSteps.map((step) => (
-                <div 
-                  key={step.id} 
-                  className={`${styles.traceStep} ${styles['trace_' + step.status]}`}
-                >
-                  <div className={styles.traceStepTop} onClick={() => toggleTraceExpand(step.id)}>
-                    <div className={styles.traceStepLeft}>
-                      <span className={styles.traceNodeDot}></span>
-                      <span className={styles.traceStepLabel}>{step.num}. {step.label}</span>
+                <div className={styles.traceTimeline}>
+                  {traceSteps.map((step) => (
+                    <div 
+                      key={step.id} 
+                      className={`${styles.traceStep} ${styles['trace_' + step.status]}`}
+                    >
+                      <div className={styles.traceStepTop} onClick={() => toggleTraceExpand(step.id)}>
+                        <div className={styles.traceStepLeft}>
+                          <span className={styles.traceNodeDot}></span>
+                          <span className={styles.traceStepLabel}>{step.num}. {step.label}</span>
+                        </div>
+                        <div className={styles.traceStepRight}>
+                          <span className={styles.traceBadge}>{step.badge}</span>
+                          {step.expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                        </div>
+                      </div>
+
+                      {step.expanded && (
+                        <div className={`${styles.traceDetailBox} fade-in`}>
+                          <p>{step.desc}</p>
+                        </div>
+                      )}
                     </div>
-                    <div className={styles.traceStepRight}>
-                      <span className={styles.traceBadge}>{step.badge}</span>
-                      {step.expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                    </div>
+                  ))}
+                </div>
+
+                {simulateSelfCorrection && correctionAttempts > 0 && (
+                  <div className={styles.selfCorrectionNotice}>
+                    <RefreshCw size={13} className="processing-pulse" />
+                    <span>Self-Correction Loop: Alternative target selector resolved successfully</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB CONTENT 2: PRIVACY & RISK ENGINE */}
+            {activeInspectorTab === 'security' && (
+              <div className={`${styles.tabPane} fade-in`}>
+                {/* Section A: Privacy Budget */}
+                <div className={styles.inspectorSection}>
+                  <div className={styles.sectionHeaderRow}>
+                    <ShieldCheck size={16} color="var(--accent-success)" />
+                    <h4 className={styles.sectionHeading}>On-Device Privacy Firewall</h4>
                   </div>
 
-                  {step.expanded && (
-                    <div className={`${styles.traceDetailBox} fade-in`}>
-                      <p>{step.desc}</p>
+                  <div className={styles.budgetGaugeContainer}>
+                    <div className={styles.gaugeHeader}>
+                      <span>Protected Context Ratio</span>
+                      <strong className={styles.gaugeValue}>{privacyBudget.percentProtected}%</strong>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Panel 5: Task Memory */}
-          <div className={`card ${styles.memoryCard}`}>
-            <div className={styles.cardHeaderWithIcon}>
-              <Database size={18} color="var(--accent-cyan)" />
-              <div>
-                <h4 className={styles.cardHeaderTitle}>Task Memory &amp; Safe Preferences</h4>
-                <p className={styles.cardHeaderSub}>Zero credentials/screenshots persisted</p>
-              </div>
-            </div>
-
-            <div className={styles.memoryItemsList}>
-              {taskMemory.map((mem, idx) => (
-                <div key={idx} className={styles.memoryItem}>
-                  <span className={styles.memoryKey}>{mem.key}:</span>
-                  <span className={styles.memoryVal}>{mem.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Panel 6: Real-time Execution Logs */}
-          {logs.length > 0 && (
-            <div className={`card ${styles.logsCard}`}>
-              <h4 style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                Live Agent Execution Logs
-              </h4>
-              <div className={styles.liveLogBox}>
-                {logs.slice(-4).map((l, i) => (
-                  <div key={i} className={styles.liveLogItem}>
-                    <span className={styles.liveLogTime}>{l.time}</span>
-                    <span className={styles[`log_${l.type}`]}>{l.message}</span>
+                    <div className={styles.progressBar}>
+                      <div 
+                        className={styles.progressFill} 
+                        style={{ width: `${privacyBudget.percentProtected}%` }}
+                      ></div>
+                    </div>
+                    <div className={styles.budgetBreakdownRow}>
+                      <div>
+                        <span className={styles.subText}>Captured</span>
+                        <strong>{privacyBudget.totalBytesCaptured} B</strong>
+                      </div>
+                      <div>
+                        <span className={styles.subText}>Transmitted</span>
+                        <strong style={{ color: 'var(--accent-primary)' }}>{privacyBudget.bytesTransmitted} B</strong>
+                      </div>
+                      <div>
+                        <span className={styles.subText}>PII Masked</span>
+                        <strong style={{ color: 'var(--accent-warning)' }}>{privacyBudget.sensitiveBlocked} items</strong>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                </div>
+
+                {/* Section B: Action Risk & Confidence */}
+                <div className={styles.inspectorSection}>
+                  <div className={styles.sectionHeaderRow}>
+                    <SlidersHorizontal size={16} color="var(--accent-primary)" />
+                    <h4 className={styles.sectionHeading}>Risk &amp; Confidence Engine</h4>
+                  </div>
+
+                  <div className={styles.dualEngineGrid}>
+                    <div className={styles.engineCol}>
+                      <span className={styles.engineLabel}>Action Risk</span>
+                      <div className={styles.engineBadgeRow}>
+                        <span className={`badge risk-${actionRisk.tier.toLowerCase()}`}>
+                          {actionRisk.tier} ({actionRisk.score})
+                        </span>
+                      </div>
+                      <p className={styles.engineSub}>{actionRisk.reason}</p>
+                    </div>
+
+                    <div className={styles.engineCol}>
+                      <span className={styles.engineLabel}>Confidence</span>
+                      <div className={styles.engineBadgeRow}>
+                        <span className={`badge ${confidenceScore > 90 ? 'success' : 'warning'}`}>
+                          {confidenceScore}%
+                        </span>
+                        <span className="badge primary" style={{ fontSize: '0.62rem' }}>
+                          {ambiguityLevel} Ambiguity
+                        </span>
+                      </div>
+                      <p className={styles.engineSub}>
+                        {confidenceScore > 90 ? '⚡ Direct Execute' : '🔍 Evidence Verified'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section C: Hybrid Latency Routing */}
+                <div className={styles.inspectorSection}>
+                  <div className={styles.sectionHeaderRow}>
+                    <Cpu size={16} color="var(--accent-purple)" />
+                    <h4 className={styles.sectionHeading}>Intelligent Hybrid Latency</h4>
+                  </div>
+
+                  <div className={styles.routingStatsRow}>
+                    <div className={styles.routingStatBox}>
+                      <span className={styles.subText}>Local Perception</span>
+                      <strong style={{ color: 'var(--accent-primary)' }}>{routingStats.localPerceptionDuration}</strong>
+                    </div>
+                    <div className={styles.routingStatBox}>
+                      <span className={styles.subText}>LLM Reasoning</span>
+                      <strong style={{ color: 'var(--accent-purple)' }}>{routingStats.cloudReasoningDuration}</strong>
+                    </div>
+                    <div className={styles.routingStatBox}>
+                      <span className={styles.subText}>Context Minimized</span>
+                      <strong style={{ color: 'var(--accent-success)' }}>{routingStats.contextMinimizedPercent}</strong>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {/* TAB CONTENT 3: LOGS & TASK MEMORY */}
+            {activeInspectorTab === 'logs' && (
+              <div className={`${styles.tabPane} fade-in`}>
+                {/* Live Logs */}
+                <div className={styles.inspectorSection}>
+                  <div className={styles.sectionHeaderRow}>
+                    <Activity size={16} color="var(--accent-primary)" />
+                    <h4 className={styles.sectionHeading}>Live Execution Terminal</h4>
+                  </div>
+
+                  <div className={styles.liveLogBox}>
+                    {logs.length === 0 ? (
+                      <div className={styles.emptyLog}>Ready for execution. Click "Execute Agent" above.</div>
+                    ) : (
+                      logs.map((l, i) => (
+                        <div key={i} className={styles.liveLogItem}>
+                          <span className={styles.liveLogTime}>{l.time}</span>
+                          <span className={styles[`log_${l.type}`]}>{l.message}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Task Memory */}
+                <div className={styles.inspectorSection}>
+                  <div className={styles.sectionHeaderRow}>
+                    <Database size={16} color="var(--accent-cyan)" />
+                    <h4 className={styles.sectionHeading}>Safe Task Memory (Zero Credentials)</h4>
+                  </div>
+
+                  <div className={styles.memoryItemsList}>
+                    {taskMemory.map((mem, idx) => (
+                      <div key={idx} className={styles.memoryItem}>
+                        <span className={styles.memoryKey}>{mem.key}:</span>
+                        <span className={styles.memoryVal}>{mem.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
