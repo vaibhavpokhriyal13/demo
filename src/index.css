@@ -210,10 +210,12 @@ code, pre {
 
 .page-content {
   flex-grow: 1;
-  padding: 1.15rem 1.5rem;
-  overflow-y: auto;
+  padding: 0.85rem 1.25rem;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 0;
 }
 
 @media (max-width: 768px) {
