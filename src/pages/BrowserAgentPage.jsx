@@ -26,7 +26,12 @@ import {
   Download,
   Calendar,
   MapPin,
-  FileSpreadsheet
+  FileSpreadsheet,
+  ArrowLeft,
+  ArrowRight,
+  RotateCw,
+  Home,
+  Plus
 } from 'lucide-react';
 import styles from './BrowserAgentPage.module.css';
 
@@ -43,7 +48,6 @@ export default function BrowserAgentPage() {
   const [showAdvancedControls, setShowAdvancedControls] = useState(false);
   const [copiedTrace, setCopiedTrace] = useState(false);
   const [viewMode, setViewMode] = useState('sanitized'); // sanitized or raw
-  const [highlightPii, setHighlightPii] = useState(true);
 
   // Scenario Presets
   const [activeScenario, setActiveScenario] = useState('report');
@@ -106,7 +110,7 @@ export default function BrowserAgentPage() {
       phase: 'Action Synthesis',
       badge: 'Cloud LLM (Safe)',
       status: 'pending',
-      details: 'Synthesized target: CLICK(Project_Report_Q4_2026.pdf) using sanitized context.'
+      details: 'Synthesized target: CLICK(Q4_Project_Expenditure_Report_2026.pdf) using sanitized context.'
     },
     {
       id: 'RISK_CHECK',
@@ -186,7 +190,7 @@ export default function BrowserAgentPage() {
         setPerceptionMode('DOM_FIRST');
         setPerceptionTimeMs(12);
         updateTraceStep('OBSERVE', 'completed', 'Parsed DOM layout and accessibility tree in 12ms (DOM Fast-Path).');
-        addLog('Fast-Path Perception complete: 18 DOM nodes parsed in 12ms', 'success');
+        addLog('Fast-Path Perception complete: 24 DOM elements parsed in 12ms', 'success');
       }
       setAgentState('DETECT');
     }, 800);
@@ -218,7 +222,7 @@ export default function BrowserAgentPage() {
       updateTraceStep('REASON', 'active');
       addLog('Synthesizing action via Cloud Reasoner with sanitized metadata...', 'info');
       setTimeout(() => {
-        updateTraceStep('REASON', 'completed', 'Intent identified: CLICK(Project_Report_Q4_2026.pdf download button).');
+        updateTraceStep('REASON', 'completed', 'Intent identified: CLICK(Q4_Project_Expenditure_Report_2026.pdf download button).');
         addLog('Action Proposal received: Intent: CLICK_ELEMENT | Target: [data-doc-id="report_q4_2026"]', 'primary');
         setAgentState('RISK_CHECK');
       }, 800);
@@ -276,7 +280,7 @@ export default function BrowserAgentPage() {
       <div className={`card ${styles.commandHeroCard}`}>
         <div className={styles.commandInputRow}>
           <div className={styles.inputBox}>
-            <Search size={17} className={styles.searchIcon} />
+            <Search size={16} className={styles.searchIcon} />
             <input 
               type="text" 
               className={styles.taskInput}
@@ -293,7 +297,7 @@ export default function BrowserAgentPage() {
               onClick={() => setShowAdvancedControls(!showAdvancedControls)}
               title="Configure Privacy Rules & Self-Correction"
             >
-              <Sliders size={14} />
+              <Sliders size={13} />
               <span>Options</span>
               {showAdvancedControls ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             </button>
@@ -305,12 +309,12 @@ export default function BrowserAgentPage() {
             >
               {isRunning ? (
                 <>
-                  <Zap className="processing-pulse" size={15} />
+                  <Zap className="processing-pulse" size={14} />
                   Running...
                 </>
               ) : (
                 <>
-                  <Play size={15} fill="currentColor" />
+                  <Play size={14} fill="currentColor" />
                   Run Agent
                 </>
               )}
@@ -384,36 +388,59 @@ export default function BrowserAgentPage() {
 
       {/* 2-Column Responsive Workspace */}
       <div className={styles.mainWorkspace}>
-        {/* Left: Authentic Government & Infrastructure Portal Viewport */}
+        {/* Left: Authentic Living Web Browser Window */}
         <div className={styles.browserColumn}>
           <div className={styles.browserFrame}>
-            <div className={styles.browserFrameHeader}>
-              <div className={styles.dots}>
-                <span></span><span></span><span></span>
+            {/* Real Browser Chrome Tabs Bar */}
+            <div className={styles.browserTabsHeader}>
+              <div className={styles.browserTabActive}>
+                <span className={styles.tabFavicon}>🏛️</span>
+                <span className={styles.tabTitleText}>NIeP Portal &bull; Project NHAI-2026-SC4</span>
+                <span className={styles.tabCloseIcon}>&times;</span>
               </div>
-              <div className={styles.urlBar}>
-                <Lock size={11} color="#10b981" />
-                <span>https://infra-portal.gov.in/projects/NHAI-2026-SC4/expenditure-reports</span>
+              <div className={styles.browserTabInactive}>
+                <span className={styles.tabFavicon}>📊</span>
+                <span className={styles.tabTitleText}>PFMS Sanction System</span>
               </div>
-              <div className={styles.viewSwitchMini}>
+              <button className={styles.newTabBtn} title="New Tab"><Plus size={12} /></button>
+            </div>
+
+            {/* Browser URL Navigation Bar */}
+            <div className={styles.browserNavControlBar}>
+              <div className={styles.navArrowsGroup}>
+                <button className={styles.navArrowBtn} title="Back"><ArrowLeft size={13} /></button>
+                <button className={styles.navArrowBtn} title="Forward"><ArrowRight size={13} /></button>
+                <button className={styles.navArrowBtn} title="Reload"><RotateCw size={12} /></button>
+                <button className={styles.navArrowBtn} title="Home"><Home size={13} /></button>
+              </div>
+
+              <div className={styles.urlAddressBar}>
+                <Lock size={12} color="#10b981" />
+                <span className={styles.urlProtocol}>https://</span>
+                <span className={styles.urlDomain}>eprocure.gov.in</span>
+                <span className={styles.urlPath}>/morth/projects/NHAI-2026-SC4/reports.html</span>
+              </div>
+
+              <div className={styles.viewModeToggleGroup}>
                 <button 
-                  className={`${styles.viewBtnMini} ${viewMode === 'sanitized' ? styles.viewActiveMini : ''}`}
+                  className={`${styles.viewBtnPill} ${viewMode === 'sanitized' ? styles.viewBtnPillActive : ''}`}
                   onClick={() => setViewMode('sanitized')}
-                  title="Sanitized view: Safe token placeholders sent to Reasoner"
+                  title="Sanitized View: PII replaced with local cryptographic tokens"
                 >
-                  Sanitized View
+                  🛡️ Sanitized (Firewall)
                 </button>
                 <button 
-                  className={`${styles.viewBtnMini} ${viewMode === 'raw' ? styles.viewActiveMini : ''}`}
+                  className={`${styles.viewBtnPill} ${viewMode === 'raw' ? styles.viewBtnPillActive : ''}`}
                   onClick={() => setViewMode('raw')}
-                  title="Raw view: Live unredacted DOM"
+                  title="Raw View: Live unredacted DOM"
                 >
-                  Raw View
+                  👁️ Raw DOM
                 </button>
               </div>
             </div>
 
-            <div className={styles.browserFrameContent}>
+            {/* Authentic Webpage Body Canvas */}
+            <div className={styles.webpageCanvas}>
               {/* Scan Laser Overlay */}
               {(agentState === 'OBSERVE' || agentState === 'DETECT') && (
                 <div className={styles.scanOverlay}></div>
@@ -429,221 +456,286 @@ export default function BrowserAgentPage() {
                 </div>
               )}
 
-              {/* Portal Header & Breadcrumbs */}
-              <div className={styles.portalTopNav}>
-                <div className={styles.portalBrand}>
-                  <div className={styles.govIcon}>🏛️</div>
-                  <div>
-                    <div className={styles.portalTitle}>National Infrastructure Development Authority</div>
-                    <div className={styles.portalSub}>Ministry of Road Transport &amp; Highways &bull; Govt of India</div>
+              {/* Official Tricolor National Ribbon */}
+              <div className={styles.nationalRibbon}></div>
+
+              {/* Ministry Top Header */}
+              <header className={styles.govOfficialHeader}>
+                <div className={styles.govEmblemSection}>
+                  <div className={styles.ashokaEmblem}>🏛️</div>
+                  <div className={styles.govTitlesWrap}>
+                    <div className={styles.govGovtLine}>GOVERNMENT OF INDIA &bull; भारत सरकार</div>
+                    <div className={styles.govMinistryLine}>Ministry of Road Transport &amp; Highways</div>
+                    <div className={styles.govPortalLine}>National Infrastructure e-Governance Portal (NIeP)</div>
                   </div>
                 </div>
-                <div className={styles.portalBadge}>OFFICIAL PORTAL</div>
+
+                <div className={styles.govHeaderUtilities}>
+                  <div className={styles.govLangPill}>English | हिन्दी</div>
+                  <div className={styles.govSecureBadge}>
+                    <ShieldCheck size={12} color="#10b981" />
+                    <span>e-Gov SSL Verified</span>
+                  </div>
+                </div>
+              </header>
+
+              {/* Main Website Navigation Menu */}
+              <nav className={styles.govNavbar}>
+                <a href="#home" className={styles.govNavLink}>Home</a>
+                <a href="#projects" className={styles.govNavLink}>Project Directory</a>
+                <a href="#sanctions" className={styles.govNavLink}>Sanction Orders</a>
+                <a href="#audits" className={`${styles.govNavLink} ${styles.govNavLinkActive}`}>Audits &amp; Reports</a>
+                <a href="#kyc" className={styles.govNavLink}>KYC Records</a>
+                <a href="#tenders" className={styles.govNavLink}>Tenders</a>
+              </nav>
+
+              {/* Notification Ticker */}
+              <div className={styles.govNoticeTicker}>
+                <span className={styles.tickerTag}>NOTICE:</span>
+                <span className={styles.tickerText}>
+                  Mandatory Q4 audit verification under RTI Act Section 8(1)(j). Sensitive identity attributes masked by PrivAgent on-device firewall.
+                </span>
               </div>
 
-              <div className={styles.breadcrumbBar}>
-                <span>Home</span> &gt; <span>Projects</span> &gt; <span>Southern Corridor Pkg-IV</span> &gt; <strong>Reports &amp; Sanctions</strong>
+              {/* Breadcrumb Path */}
+              <div className={styles.pageBreadcrumbs}>
+                <span>e-Portal Home</span> &raquo; <span>National Highways</span> &raquo; <span>Southern Corridor Phase-IV</span> &raquo; <strong style={{ color: 'var(--text-main)' }}>Q4 Expenditure Reports</strong>
               </div>
 
-              {/* Project Hero Summary */}
-              <div className={styles.projectHeroCard}>
-                <div className={styles.projectHeroTop}>
-                  <div>
-                    <span className={styles.projectCode}>PROJECT ID: NHAI-2026-SC4-992</span>
-                    <h3 className={styles.projectName}>Bengaluru - Chennai Expressway (Package-IV)</h3>
-                  </div>
-                  <span className={styles.projectStatusBadge}>Active &bull; 84.2% Complete</span>
+              {/* Section 1: Official Project Overview Table */}
+              <section className={styles.govWebSection}>
+                <div className={styles.sectionHeadingBar}>
+                  <h4>1. Project Summary &amp; Sanction Details</h4>
+                  <span className={styles.liveStatusPill}>Status: Active (84.2% Physical Progress)</span>
                 </div>
 
-                <div className={styles.projectMetaChips}>
-                  <div className={styles.metaChip}>
-                    <MapPin size={12} color="var(--accent-primary)" />
-                    <span>Sector: Highway &amp; Bridges</span>
-                  </div>
-                  <div className={styles.metaChip}>
-                    <CreditCard size={12} color="var(--accent-success)" />
-                    <span>Budget: ₹4,280.50 Cr</span>
-                  </div>
-                  <div className={styles.metaChip}>
-                    <Calendar size={12} color="var(--accent-warning)" />
-                    <span>Target Date: Dec 2026</span>
-                  </div>
+                <div className={styles.govTableWrapper}>
+                  <table className={styles.govDataTable}>
+                    <tbody>
+                      <tr>
+                        <td className={styles.tableHeadCell}>Project Name</td>
+                        <td className={styles.tableValCell}><strong>Bengaluru - Chennai Economic Corridor Expressway (Package-IV)</strong></td>
+                        <td className={styles.tableHeadCell}>Project ID / Code</td>
+                        <td className={styles.tableValCell}><code className={styles.codeSnippet}>NHAI/BOT/2026/SC4-992</code></td>
+                      </tr>
+                      <tr>
+                        <td className={styles.tableHeadCell}>Executing Contractor</td>
+                        <td className={styles.tableValCell}>Larsen &amp; Toubro - Tata Infra Construction JV</td>
+                        <td className={styles.tableHeadCell}>Sanctioned Budget</td>
+                        <td className={styles.tableValCell}><strong style={{ color: 'var(--accent-success)' }}>₹4,280.50 Crores</strong></td>
+                      </tr>
+                      <tr>
+                        <td className={styles.tableHeadCell}>Location Sector</td>
+                        <td className={styles.tableValCell}>Karnataka - Tamil Nadu Interstate Border Section</td>
+                        <td className={styles.tableHeadCell}>Scheduled Target</td>
+                        <td className={styles.tableValCell}>31 December 2026</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-              </div>
+              </section>
 
-              {/* Sensitive KYC & Personnel Redaction Container */}
-              <div className={styles.detectorSection}>
-                <div className={styles.detectorSectionHeader}>
-                  <div className={styles.detectorTitle}>
-                    <Fingerprint size={15} color="var(--accent-primary)" />
-                    <div>
-                      <strong>Personnel &amp; Contractor KYC Record</strong>
-                      <span className={styles.detectorSub}>Confidential KYC Attributes &bull; Privacy Firewall Active</span>
-                    </div>
+              {/* Section 2: Confidential Personnel & Contractor KYC (The Redaction Target) */}
+              <section className={styles.govWebSection}>
+                <div className={styles.sectionHeadingBar}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <Fingerprint size={14} color="var(--accent-primary)" />
+                    <h4>2. Officer &amp; Contractor KYC Authorization Directory</h4>
                   </div>
-                  <div className={styles.detectorBadgesList}>
-                    <span className="badge warning">■ Aadhaar</span>
-                    <span className="badge warning">■ Phone</span>
-                    <span className="badge warning">■ PAN</span>
-                    <span className="badge warning">■ Escrow Bank</span>
-                  </div>
-                </div>
-
-                <div className={styles.dataFieldsGrid}>
-                  <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <div className={styles.fieldTopRow}>
-                      <span className={styles.fieldLabel}>Director</span>
-                      <span className={styles.fieldRole}>SIGNATORY</span>
-                    </div>
-                    <span className={styles.fieldValAllowed}>Dr. Rajeshwar Sharma (IAS)</span>
-                  </div>
-
-                  <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <div className={styles.fieldTopRow}>
-                      <span className={styles.fieldLabel}>Aadhaar ID</span>
-                      <span className={styles.tagPii}>AADHAAR</span>
-                    </div>
-                    {viewMode === 'sanitized' ? (
-                      <span className="redacted-block">XXXX-XXXX-8921</span>
-                    ) : (
-                      <span className={styles.rawPii}>9842-1104-8921</span>
-                    )}
-                  </div>
-
-                  <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <div className={styles.fieldTopRow}>
-                      <span className={styles.fieldLabel}>Contact Phone</span>
-                      <span className={styles.tagPii}>PHONE</span>
-                    </div>
-                    {viewMode === 'sanitized' ? (
-                      <span className="redacted-block">+91 9840X XXXXX</span>
-                    ) : (
-                      <span className={styles.rawPii}>+91 98401 23456</span>
-                    )}
-                  </div>
-
-                  <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <div className={styles.fieldTopRow}>
-                      <span className={styles.fieldLabel}>Contractor PAN</span>
-                      <span className={styles.tagPii}>PAN</span>
-                    </div>
-                    {viewMode === 'sanitized' ? (
-                      <span className="redacted-block">ABCPSXXXXF</span>
-                    ) : (
-                      <span className={styles.rawPii}>ABCPS9182F</span>
-                    )}
-                  </div>
-
-                  <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <div className={styles.fieldTopRow}>
-                      <span className={styles.fieldLabel}>Escrow Account</span>
-                      <span className={styles.tagPii}>BANK_ACC</span>
-                    </div>
-                    {viewMode === 'sanitized' ? (
-                      <span className="redacted-block">HDFC-0092-XXXX-4421</span>
-                    ) : (
-                      <span className={styles.rawPii}>HDFC-0092-1049-4421</span>
-                    )}
-                  </div>
-
-                  <div className={`${styles.dataFieldItem} ${highlightPii ? styles.fieldHighlight : ''}`}>
-                    <div className={styles.fieldTopRow}>
-                      <span className={styles.fieldLabel}>Audit Email</span>
-                      <span className={styles.tagPii}>EMAIL</span>
-                    </div>
-                    {viewMode === 'sanitized' ? (
-                      <span className="redacted-block">r***@morth.gov.in</span>
-                    ) : (
-                      <span className={styles.rawPii}>rajesh.s@morth.gov.in</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Reports & Document Repository (The Action Target) */}
-              <div className={styles.actionSection}>
-                <div className={styles.actionHeader}>
-                  <FileText size={15} color="var(--accent-primary)" />
-                  <h4>Sanctioned Project Documentation &amp; Audit Reports</h4>
+                  <span className={styles.firewallActiveTag}>🛡️ PrivAgent On-Device Masking Active</span>
                 </div>
 
-                <div className={styles.docListGrid}>
-                  {/* Primary Target Report */}
-                  <div className={`${styles.docCard} ${agentState === 'EXECUTE' ? styles.docCardActive : ''}`}>
-                    <div className={styles.docDetails}>
-                      <div className={styles.docIconWrap}>
-                        <FileText size={18} color="var(--accent-primary)" />
-                      </div>
-                      <div>
-                        <div className={styles.docTitleRow}>
-                          <span className={styles.docTitle}>Project_Report_Q4_2026.pdf</span>
-                          <span className={styles.classificationBadge}>CONFIDENTIAL AUDIT</span>
-                        </div>
-                        <div className={styles.docMeta}>3.8 MB &bull; Q4 Consolidated Expenditure &amp; Physical Progress Report</div>
-                      </div>
-                    </div>
-
-                    <div className={styles.docActionArea}>
-                      {simulateCanvasTarget ? (
-                        <div className={styles.canvasButtonSim}>
-                          Canvas Geo-Target (ONNX Vision Required)
-                        </div>
-                      ) : (
-                        <button 
-                          className={`${styles.actionDownloadBtn} ${agentState === 'EXECUTE' ? styles.btnExecuting : ''}`}
-                          id="target-download-report"
-                        >
-                          {agentState === 'COMPLETED' ? (
-                            <>
-                              <CheckCircle2 size={13} />
-                              Downloaded
-                            </>
+                <div className={styles.govTableWrapper}>
+                  <table className={styles.govDataTable}>
+                    <thead>
+                      <tr>
+                        <th>Designation / Entity</th>
+                        <th>Authorized Name</th>
+                        <th>Sensitive Document UID / Account</th>
+                        <th>Classification</th>
+                        <th>UIDAI / NSDL Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>Principal Director</strong></td>
+                        <td>Dr. Rajeshwar Sharma (IAS)</td>
+                        <td>
+                          {viewMode === 'sanitized' ? (
+                            <span className="redacted-block">XXXX-XXXX-8921</span>
                           ) : (
-                            <>
-                              <Download size={13} />
-                              Download Report
-                            </>
+                            <span className={styles.rawPii}>9842-1104-8921</span>
                           )}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Secondary Report */}
-                  <div className={styles.docCard}>
-                    <div className={styles.docDetails}>
-                      <div className={styles.docIconWrap}>
-                        <FileSpreadsheet size={18} color="var(--accent-success)" />
-                      </div>
-                      <div>
-                        <div className={styles.docTitleRow}>
-                          <span className={styles.docTitle}>Contractor_Escrow_Disbursements_2026.xlsx</span>
-                          <span className={styles.publicBadge}>FINANCIAL LEDGER</span>
-                        </div>
-                        <div className={styles.docMeta}>1.4 MB &bull; Stage-3 Verified Contractor Invoice Schedule</div>
-                      </div>
-                    </div>
-                    <button className={styles.actionDownloadBtnSecondary}>View Summary</button>
-                  </div>
-
-                  {/* Third Report */}
-                  <div className={styles.docCard}>
-                    <div className={styles.docDetails}>
-                      <div className={styles.docIconWrap}>
-                        <FileText size={18} color="var(--text-muted)" />
-                      </div>
-                      <div>
-                        <div className={styles.docTitleRow}>
-                          <span className={styles.docTitle}>Environmental_Clearance_NOC_MoEFCC.pdf</span>
-                          <span className={styles.publicBadge}>PUBLIC RECORD</span>
-                        </div>
-                        <div className={styles.docMeta}>2.1 MB &bull; Forest &amp; Eco-sensitive Zone Statutory Approval</div>
-                      </div>
-                    </div>
-                    <button className={styles.actionDownloadBtnSecondary}>View Summary</button>
-                  </div>
+                        </td>
+                        <td><span className={styles.kycTag}>AADHAAR</span></td>
+                        <td><span className={styles.statusVerified}>✅ Verified UIDAI</span></td>
+                      </tr>
+                      <tr>
+                        <td><strong>Site Supervising Eng.</strong></td>
+                        <td>Suresh K. Verma</td>
+                        <td>
+                          {viewMode === 'sanitized' ? (
+                            <span className="redacted-block">+91 9840X XXXXX</span>
+                          ) : (
+                            <span className={styles.rawPii}>+91 98401 23456</span>
+                          )}
+                        </td>
+                        <td><span className={styles.kycTag}>PHONE</span></td>
+                        <td><span className={styles.statusVerified}>✅ Verified OTP</span></td>
+                      </tr>
+                      <tr>
+                        <td><strong>Contractor Legal Tax Entity</strong></td>
+                        <td>L&amp;T Construction JV</td>
+                        <td>
+                          {viewMode === 'sanitized' ? (
+                            <span className="redacted-block">ABCPSXXXXF</span>
+                          ) : (
+                            <span className={styles.rawPii}>ABCPS9182F</span>
+                          )}
+                        </td>
+                        <td><span className={styles.kycTag}>PAN_CARD</span></td>
+                        <td><span className={styles.statusVerified}>✅ NSDL Valid</span></td>
+                      </tr>
+                      <tr>
+                        <td><strong>Contractor Escrow Account</strong></td>
+                        <td>State Bank of India (Disbursement)</td>
+                        <td>
+                          {viewMode === 'sanitized' ? (
+                            <span className="redacted-block">HDFC-0092-XXXX-4421</span>
+                          ) : (
+                            <span className={styles.rawPii}>HDFC-0092-1049-4421</span>
+                          )}
+                        </td>
+                        <td><span className={styles.kycTag}>BANK_ACC</span></td>
+                        <td><span className={styles.statusVerified}>✅ Escrow Tied</span></td>
+                      </tr>
+                      <tr>
+                        <td><strong>Field Financial Auditor</strong></td>
+                        <td>Rajesh S. (Comptroller)</td>
+                        <td>
+                          {viewMode === 'sanitized' ? (
+                            <span className="redacted-block">r***@morth.gov.in</span>
+                          ) : (
+                            <span className={styles.rawPii}>rajesh.s@morth.gov.in</span>
+                          )}
+                        </td>
+                        <td><span className={styles.kycTag}>EMAIL</span></td>
+                        <td><span className={styles.statusVerified}>✅ NIC Mailbox</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-              </div>
+              </section>
+
+              {/* Section 3: Official Reports & Downloadable Attachments (Target Element) */}
+              <section className={styles.govWebSection}>
+                <div className={styles.sectionHeadingBar}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <FileText size={14} color="var(--accent-primary)" />
+                    <h4>3. Sanctioned Expenditure Reports &amp; Verified Audit Statements</h4>
+                  </div>
+                  <span className={styles.publicRecordsCount}>3 Attachments Available</span>
+                </div>
+
+                <div className={styles.govTableWrapper}>
+                  <table className={styles.govDataTable}>
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Document Title &amp; Description</th>
+                        <th>Size</th>
+                        <th>Classification Tier</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* Primary Download Target */}
+                      <tr className={`${styles.tableTargetRow} ${agentState === 'EXECUTE' ? styles.targetRowHighlight : ''}`}>
+                        <td style={{ fontWeight: 'bold' }}>01</td>
+                        <td>
+                          <div className={styles.docRowTitle}>
+                            <FileText size={15} color="var(--accent-primary)" />
+                            <strong>Q4_Project_Expenditure_Report_2026.pdf</strong>
+                          </div>
+                          <div className={styles.docRowSub}>
+                            Consolidated Quarterly Expenditure, Fund Utilization &amp; Stage-3 Physical Verification Statement
+                          </div>
+                        </td>
+                        <td>3.8 MB</td>
+                        <td><span className={styles.confidentialBadge}>CONFIDENTIAL AUDIT</span></td>
+                        <td>
+                          {simulateCanvasTarget ? (
+                            <span className={styles.canvasButtonSim}>Canvas Vision Element</span>
+                          ) : (
+                            <button 
+                              className={`${styles.govDownloadBtn} ${agentState === 'EXECUTE' ? styles.btnExecuting : ''}`}
+                              id="target-download-report"
+                            >
+                              {agentState === 'COMPLETED' ? (
+                                <>
+                                  <CheckCircle2 size={13} />
+                                  Downloaded
+                                </>
+                              ) : (
+                                <>
+                                  <Download size={13} />
+                                  Download PDF
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>02</td>
+                        <td>
+                          <div className={styles.docRowTitle}>
+                            <FileSpreadsheet size={15} color="var(--accent-success)" />
+                            <strong>Contractor_Escrow_Disbursements_2026.xlsx</strong>
+                          </div>
+                          <div className={styles.docRowSub}>
+                            Itemized Bill Invoice Schedules, Material Test Certifications &amp; Line Estimates
+                          </div>
+                        </td>
+                        <td>1.4 MB</td>
+                        <td><span className={styles.publicDocBadge}>FINANCIAL RECORD</span></td>
+                        <td>
+                          <button className={styles.govDownloadBtnSec}>
+                            <Download size={12} /> Download XLS
+                          </button>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>03</td>
+                        <td>
+                          <div className={styles.docRowTitle}>
+                            <FileText size={15} color="var(--text-muted)" />
+                            <strong>Environmental_Impact_Assessment_NOC.pdf</strong>
+                          </div>
+                          <div className={styles.docRowSub}>
+                            MoEFCC Statutory Environmental Clearance &amp; Eco-sensitive Buffer Zone Approval
+                          </div>
+                        </td>
+                        <td>2.1 MB</td>
+                        <td><span className={styles.publicDocBadge}>STATUTORY NOC</span></td>
+                        <td>
+                          <button className={styles.govDownloadBtnSec}>
+                            <Download size={12} /> Download PDF
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              {/* Real Portal Footer */}
+              <footer className={styles.govPortalFooter}>
+                <div>🇮🇳 Portal Designed &amp; Developed by National Informatics Centre (NIC) &bull; Govt. of India</div>
+                <div style={{ color: 'var(--text-subtle)' }}>Last Updated: 30 Aug 2026 | Content Owned by MoRTH</div>
+              </footer>
             </div>
           </div>
         </div>
@@ -772,7 +864,7 @@ export default function BrowserAgentPage() {
                       </div>
                       <div>
                         <span className={styles.subText}>DOM Nodes Cleaned</span>
-                        <strong>18 Nodes</strong>
+                        <strong>24 Nodes</strong>
                       </div>
                       <div>
                         <span className={styles.subText}>Payload Epsilon</span>
