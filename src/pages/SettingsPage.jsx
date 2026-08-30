@@ -8,7 +8,8 @@ import {
   Sliders,
   Sun,
   Moon,
-  Palette
+  Palette,
+  Rocket
 } from 'lucide-react';
 import styles from './SettingsPage.module.css';
 
@@ -59,6 +60,20 @@ export default function SettingsPage({ theme, setTheme, toggleTheme }) {
           </div>
 
           <div className={styles.themeSelectorGrid}>
+            <div 
+              className={`${styles.themeOption} ${theme === 'isro' ? styles.themeActive : ''}`}
+              onClick={() => setTheme && setTheme('isro')}
+            >
+              <div className={styles.themeIconWrap} style={{ background: 'rgba(8, 14, 34, 0.95)', color: '#f97316' }}>
+                <Rocket size={18} />
+              </div>
+              <div className={styles.themeText}>
+                <strong>ISRO Mission Control</strong>
+                <p>Cosmic deep space, saffron thruster glow &amp; telemetry blue.</p>
+              </div>
+              {theme === 'isro' && <span className="badge warning">Active</span>}
+            </div>
+
             <div 
               className={`${styles.themeOption} ${theme === 'dark' ? styles.themeActive : ''}`}
               onClick={() => setTheme && setTheme('dark')}

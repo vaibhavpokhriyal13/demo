@@ -10,7 +10,8 @@ import {
   X,
   Sparkles,
   Sun,
-  Moon
+  Moon,
+  Rocket
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
@@ -25,7 +26,19 @@ export default function Sidebar({ activeTab, setActiveTab, theme, toggleTheme })
     { id: 'settings', label: 'Policy Settings', icon: <Settings size={18} /> },
   ];
 
-  const isDark = theme === 'dark';
+  const getThemeInfo = () => {
+    switch (theme) {
+      case 'isro':
+        return { label: 'ISRO Space Mode', icon: <Rocket size={15} color="#f97316" /> };
+      case 'light':
+        return { label: 'Light Mode', icon: <Sun size={15} color="#f59e0b" /> };
+      case 'dark':
+      default:
+        return { label: 'Dark Mode', icon: <Moon size={15} color="#818cf8" /> };
+    }
+  };
+
+  const themeInfo = getThemeInfo();
 
   return (
     <>
@@ -45,10 +58,10 @@ export default function Sidebar({ activeTab, setActiveTab, theme, toggleTheme })
           <button 
             className={styles.themeToggleBtn} 
             onClick={toggleTheme} 
-            aria-label="Toggle Theme"
-            title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            aria-label="Cycle Theme"
+            title={`Current: ${themeInfo.label} (Click to switch)`}
           >
-            {isDark ? <Sun size={17} color="#fbbf24" /> : <Moon size={17} color="#6366f1" />}
+            {themeInfo.icon}
           </button>
 
           <button className={styles.hamburgerBtn} onClick={() => setIsOpen(true)} aria-label="Open Navigation">
@@ -72,7 +85,7 @@ export default function Sidebar({ activeTab, setActiveTab, theme, toggleTheme })
               <h1 className={styles.logoText}>PrivAgent</h1>
               <span className={styles.versionPill}>v2.6</span>
             </div>
-            <p className={styles.logoSubtext}>On-Device Visual Privacy AI</p>
+            <p className={styles.logoSubtext}>ISRO / DOS Visual Perception AI</p>
           </div>
           <button className={styles.closeBtn} onClick={() => setIsOpen(false)} aria-label="Close Navigation">
             <X size={18} color="var(--text-main)" />
@@ -106,19 +119,21 @@ export default function Sidebar({ activeTab, setActiveTab, theme, toggleTheme })
         </nav>
         
         <div className={styles.footer}>
-          {/* Theme Quick Switcher Pill in Footer */}
+          {/* 3-Way Theme Switcher in Footer */}
           <button 
             className={styles.themeToggleBar} 
             onClick={toggleTheme}
-            title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            title={`Current: ${themeInfo.label} (Click to cycle ISRO / Dark / Light)`}
           >
             <div className={styles.themeToggleLeft}>
-              {isDark ? <Moon size={15} color="#818cf8" /> : <Sun size={15} color="#f59e0b" />}
-              <span>{isDark ? 'Dark Mode' : 'Light Mode'}</span>
+              {themeInfo.icon}
+              <span>{themeInfo.label}</span>
             </div>
-            <div className={`${styles.themeSwitchPill} ${isDark ? styles.switchDark : styles.switchLight}`}>
+            <div className={`${styles.themeSwitchPill} ${styles['switch_' + theme]}`}>
               <div className={styles.switchKnob}>
-                {isDark ? <Moon size={10} color="#fff" /> : <Sun size={10} color="#f59e0b" />}
+                {theme === 'isro' && <Rocket size={10} color="#f97316" />}
+                {theme === 'dark' && <Moon size={10} color="#818cf8" />}
+                {theme === 'light' && <Sun size={10} color="#f59e0b" />}
               </div>
             </div>
           </button>
@@ -126,7 +141,7 @@ export default function Sidebar({ activeTab, setActiveTab, theme, toggleTheme })
           <div className={styles.sihBadge}>
             <div className={styles.sihTagRow}>
               <Sparkles size={11} color="var(--accent-primary)" />
-              <span className={styles.sihTag}>PROBLEM PS SIH26171</span>
+              <span className={styles.sihTag}>ISRO &bull; PS SIH26171</span>
             </div>
             <span className={styles.sihSub}>On-Device Perception &amp; Redaction</span>
           </div>

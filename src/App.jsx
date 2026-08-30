@@ -20,7 +20,11 @@ function App() {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+    setTheme(prev => {
+      if (prev === 'isro') return 'dark';
+      if (prev === 'dark') return 'light';
+      return 'isro';
+    });
   };
 
   const renderContent = () => {
