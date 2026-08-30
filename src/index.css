@@ -340,28 +340,19 @@ code, pre {
 
 /* Redaction Block */
 .redacted-block {
-  background: var(--redact-pattern);
-  color: transparent !important;
-  border-radius: 8px;
+  background: var(--accent-primary-subtle);
+  color: var(--accent-primary) !important;
+  border-radius: 6px;
   user-select: none;
-  display: inline-block;
-  min-height: 1.4em;
-  min-width: 90px;
-  border: 1px solid var(--redact-border);
-  position: relative;
-  overflow: hidden;
-  vertical-align: middle;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.redacted-block::after {
-  content: '🛡️ MASKED';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: var(--redact-text);
-  font-size: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.22rem 0.6rem;
+  border: 1px dashed var(--accent-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  white-space: nowrap;
 }

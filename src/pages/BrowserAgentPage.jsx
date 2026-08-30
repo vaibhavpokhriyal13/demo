@@ -562,7 +562,10 @@ export default function BrowserAgentPage() {
                         <td>Dr. Rajeshwar Sharma (IAS)</td>
                         <td>
                           {viewMode === 'sanitized' ? (
-                            <span className="redacted-block">XXXX-XXXX-8921</span>
+                            <span className="redacted-block">
+                              <Lock size={11} />
+                              XXXX-XXXX-8921
+                            </span>
                           ) : (
                             <span className={styles.rawPii}>9842-1104-8921</span>
                           )}
@@ -575,7 +578,10 @@ export default function BrowserAgentPage() {
                         <td>Suresh K. Verma</td>
                         <td>
                           {viewMode === 'sanitized' ? (
-                            <span className="redacted-block">+91 9840X XXXXX</span>
+                            <span className="redacted-block">
+                              <Lock size={11} />
+                              +91 9840X XXXXX
+                            </span>
                           ) : (
                             <span className={styles.rawPii}>+91 98401 23456</span>
                           )}
@@ -588,7 +594,10 @@ export default function BrowserAgentPage() {
                         <td>L&amp;T Construction JV</td>
                         <td>
                           {viewMode === 'sanitized' ? (
-                            <span className="redacted-block">ABCPSXXXXF</span>
+                            <span className="redacted-block">
+                              <Lock size={11} />
+                              ABCPSXXXXF
+                            </span>
                           ) : (
                             <span className={styles.rawPii}>ABCPS9182F</span>
                           )}
@@ -601,7 +610,10 @@ export default function BrowserAgentPage() {
                         <td>State Bank of India (Disbursement)</td>
                         <td>
                           {viewMode === 'sanitized' ? (
-                            <span className="redacted-block">HDFC-0092-XXXX-4421</span>
+                            <span className="redacted-block">
+                              <Lock size={11} />
+                              HDFC-0092-XXXX-4421
+                            </span>
                           ) : (
                             <span className={styles.rawPii}>HDFC-0092-1049-4421</span>
                           )}
@@ -614,7 +626,10 @@ export default function BrowserAgentPage() {
                         <td>Rajesh S. (Comptroller)</td>
                         <td>
                           {viewMode === 'sanitized' ? (
-                            <span className="redacted-block">r***@morth.gov.in</span>
+                            <span className="redacted-block">
+                              <Lock size={11} />
+                              r***@morth.gov.in
+                            </span>
                           ) : (
                             <span className={styles.rawPii}>rajesh.s@morth.gov.in</span>
                           )}
